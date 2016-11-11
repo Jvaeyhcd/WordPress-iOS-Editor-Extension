@@ -28,24 +28,24 @@ Pod::Spec.new do |s|
   s.description  = "Reusable component rich text editor for WordPress.com in an iOS application.And can allow users to customize the editor toolbar."
 
 
-  s.homepage         = "https://github.com/pzhtpf/WordPress-Editor-iOS-Extension"
+  s.homepage         = "https://github.com/Jvaeyhcd/WordPress-iOS-Editor-Extension"
   # s.screenshots     = "www.example.com/screenshots_1", "www.example.com/screenshots_2"
   s.license          = 'MIT'
-  s.author           = { "tianpengfei" => "389744841@qq.com" }
-  s.source           = { :git => "https://github.com/pzhtpf/WordPress-Editor-iOS-Extension.git", :tag => s.version.to_s }
+  s.author           = { "chedahuang" => "1191591250@qq.com" }
+  s.source           = { :git => "https://github.com/Jvaeyhcd/WordPress-iOS-Editor-Extension.git", :tag => s.version.to_s }
   # s.social_media_url = 'https://twitter.com/<TWITTER_USERNAME>'
 
   s.ios.deployment_target = '8.0'
   s.requires_arc = true
 
-  s.source_files = 'WordPress-Editor-iOS-Extension/Classes/**/*'
+  s.source_files = 'WordPress-iOS-Editor-Extension/Classes/**/*'
 
-  s.resources = ["WordPress-Editor-iOS-Extension/Assets/*.png", "WordPress-Editor-iOS-Extension/Assets/*.html", "WordPress-Editor-iOS-Extension/Assets/*.js", "WordPress-Editor-iOS-Extension/Assets/*.svg", "WordPress-Editor-iOS-Extension/Assets/*.css", "WordPress-Editor-iOS-Extension/Assets/*.storyboard", "WordPress-Editor-iOS-Extension/Assets/*.xib"]
+  s.resources = ["WordPress-iOS-Editor-Extension/Assets/*.png", "WordPress-iOS-Editor-Extension/Assets/*.html", "WordPress-iOS-Editor-Extension/Assets/*.js", "WordPress-iOS-Editor-Extension/Assets/*.svg", "WordPress-iOS-Editor-Extension/Assets/*.css", "WordPress-iOS-Editor-Extension/Assets/*.storyboard", "WordPress-iOS-Editor-Extension/Assets/*.xib"]
 
-  s.prefix_header_file = "WordPress-Editor-iOS-Extension/Classes/WordPress-Editor-iOS-Extension.pch"
+  s.prefix_header_file = "WordPress-iOS-Editor-Extension/Classes/WordPress-iOS-Editor-Extension.pch"
 
   s.resource_bundles = {
-    'WordPress-Editor-iOS-Extension' => ['WordPress-Editor-iOS-Extension/Assets/*.png']
+    'WordPress-iOS-Editor-Extension' => ['WordPress-iOS-Editor-Extension/Assets/*.png']
   }
 
   # s.public_header_files = 'Pod/Classes/**/*.h'
