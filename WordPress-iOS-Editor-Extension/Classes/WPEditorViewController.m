@@ -1539,9 +1539,9 @@ NSInteger const WPLinkAlertViewTag = 92;
 }
 -(void)showMore{
 
-    moreItmsController *moreitmsController = [[moreItmsController alloc] init];
-    moreitmsController.delegate = self;
-    [self presentViewController:moreitmsController animated:YES completion:^(){}];
+//    moreItmsController *moreitmsController = [[moreItmsController alloc] init];
+//    moreitmsController.delegate = self;
+//    [self presentViewController:moreitmsController animated:YES completion:^(){}];
     
 }
 -(void)reloadUserSettingItems{

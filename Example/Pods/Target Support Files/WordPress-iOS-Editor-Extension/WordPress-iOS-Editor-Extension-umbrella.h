@@ -18,6 +18,7 @@
 #import "UIWebView+GUIFixes.h"
 #import "WPEditorConfiguration.h"
 #import "WPEditorField.h"
+#import "WPEditorFormatbarView.h"
 #import "WPEditorToolbarButton.h"
 #import "WPEditorToolbarView.h"
 #import "WPEditorView.h"
