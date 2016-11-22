@@ -1,0 +1,7 @@
+use_frameworks!
+
+target 'WordPress-iOS-Editor-Extension' do
+  pod 'WordPress-iOS-Editor-Extension', :path => '../'
+  pod 'AFNetworking', '~> 3.1.0'
+
+end

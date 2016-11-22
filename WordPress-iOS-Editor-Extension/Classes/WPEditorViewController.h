@@ -30,7 +30,7 @@ WPEditorViewControllerMode;
 /**
  *	@brief		Received when the format bar enabled status has changed.
  *	@param		editorController    The editor view.
- *	@param		enabled             BOOL describing the new state of the format bar
+ *	@param		isEnabled             BOOL describing the new state of the format bar
  */
 - (void)editorFormatBarStatusChanged:(WPEditorViewController *)editorController
                              enabled:(BOOL)isEnabled;
@@ -40,7 +40,7 @@ WPEditorViewControllerMode;
  *  @details    The editor fields will be nil before this method is called.  This is because editor
  *              fields are created as part of the process of loading the HTML.
  *
- *	@param		editorView		The editor view.
+ *	@param		editorViewController		The editor view.
  *	@param		field			The new field.
  */
 - (void)editorViewController:(WPEditorViewController*)editorViewController
@@ -49,7 +49,7 @@ WPEditorViewControllerMode;
 /**
  *	@brief		Received when the user taps on a image in the editor.
  *
- *	@param		editorView	The editor view.
+ *	@param		editorViewController	The editor view.
  *	@param		imageId		The id of image of the image that was tapped.
  *	@param		url			The url of the image that was tapped.
  *
@@ -61,7 +61,7 @@ WPEditorViewControllerMode;
 /**
  *	@brief		Received when the user taps on a image in the editor.
  *
- *	@param		editorView	The editor view.
+ *	@param		editorViewController	The editor view.
  *	@param		imageId		The id of image of the image that was tapped.
  *	@param		url			The url of the image that was tapped.
  *  @param		imageMeta	The parsed meta data about the image.
@@ -74,7 +74,7 @@ WPEditorViewControllerMode;
 /**
  *	@brief		Received when the user taps on a image in the editor.
  *
- *	@param		editorView	The editor view.
+ *	@param		editorViewController	The editor view.
  *	@param		videoID		The id of the video that was tapped.
  *	@param		url			The url of the video that was tapped.
  *
@@ -86,7 +86,7 @@ WPEditorViewControllerMode;
 /**
  *	@brief		Received when the local image url is replace by the final image in the editor.
  *
- *	@param		editorView	The editor view.
+ *	@param		editorViewController	The editor view.
  *	@param		imageId		The id of image of the image that was tapped.
  */
 - (void)editorViewController:(WPEditorViewController*)editorViewController
@@ -95,7 +95,7 @@ WPEditorViewControllerMode;
 /**
  *	@brief		Received when the local video url is replace by the final video in the editor.
  *
- *	@param		editorView	The editor view.
+ *	@param		editorViewController	The editor view.
  *	@param		videoID		The id of video that was tapped.
  */
 - (void)editorViewController:(WPEditorViewController*)editorViewController
@@ -104,7 +104,7 @@ WPEditorViewControllerMode;
 /**
  *	@brief		Received when the editor requests information about a videopress video.
  *
- *	@param		editorView	The editor view.
+ *	@param		editorViewController	The editor view.
  *	@param		videoID		The id of video that was tapped.
  */
 - (void)editorViewController:(WPEditorViewController *)editorViewController
@@ -113,7 +113,7 @@ WPEditorViewControllerMode;
 /**
  *	@brief		Received when the editor removed an uploading media.
  *
- *	@param		editorView	The editor view.
+ *	@param		editorViewController	The editor view.
  *	@param		mediaID		The id of the media that was removed.
  */
 - (void)editorViewController:(WPEditorViewController *)editorViewController

@@ -911,7 +911,7 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
          }
      } onComplete:^{
          static NSString* const ErrorFormat = @"WebEditor error:\r\n  In file: %@\r\n  In line: %@\r\n  %@";
-         
+         NSLog(ErrorFormat, errorUrl, line, message);
 //         DDLogError(ErrorFormat, errorUrl, line, message);
      }];
 }

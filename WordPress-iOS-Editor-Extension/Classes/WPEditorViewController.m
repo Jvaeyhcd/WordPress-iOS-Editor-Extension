@@ -17,7 +17,7 @@ CGFloat const EPVCStandardOffset = 10.0;
 NSInteger const WPImageAlertViewTag = 91;
 NSInteger const WPLinkAlertViewTag = 92;
 
-@interface WPEditorViewController () <HRColorPickerViewControllerDelegate, UIAlertViewDelegate, WPEditorToolbarViewDelegate, WPEditorViewDelegate,moreItmsDelegate,imageSelectDelegate>
+@interface WPEditorViewController () <HRColorPickerViewControllerDelegate, UIAlertViewDelegate, WPEditorToolbarViewDelegate, WPEditorViewDelegate,moreItmsDelegate,imageSelectDelegate, WYPopoverControllerDelegate>
 
 @property (nonatomic, strong) NSString *htmlString;
 @property (nonatomic, strong) NSArray *editorItemsEnabled;
@@ -149,10 +149,11 @@ NSInteger const WPLinkAlertViewTag = 92;
     [WPFontManager merriweatherItalicFontOfSize:16.0];
     [WPFontManager merriweatherLightFontOfSize:16.0];
     [WPFontManager merriweatherRegularFontOfSize:16.0];
-    [WPFontManager openSansRegularFontOfSize:16.0];
-    [WPFontManager openSansItalicFontOfSize:16.0];
-    [WPFontManager openSansBoldFontOfSize:16.0];
-    [WPFontManager openSansBoldItalicFontOfSize:16.0];
+    [WPFontManager systemRegularFontOfSize:16.0];
+    [WPFontManager systemItalicFontOfSize:16.0];
+    [WPFontManager systemBoldFontOfSize:16.0];
+    [WPFontManager systemLightFontOfSize:16.0];
+    [WPFontManager systemSemiBoldFontOfSize: 16.0];
 	
     WPEditorConfiguration *configuration  = [WPEditorConfiguration sharedWPEditorConfiguration];
     configuration.localizable = kLMChinese;
@@ -1080,7 +1081,7 @@ NSInteger const WPLinkAlertViewTag = 92;
         
         NSArray *data = _imageselectController.data;
         
-        int height =  _imageselectController.data.count*44;
+        unsigned long height =  data.count*44;
         
         _wypopoverController = [[WYPopoverController alloc] initWithContentViewController:_imageselectController];
         _wypopoverController.delegate = self;

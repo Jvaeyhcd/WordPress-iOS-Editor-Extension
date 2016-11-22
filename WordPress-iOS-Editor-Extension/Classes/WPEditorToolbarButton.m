@@ -11,7 +11,7 @@ static CGFloat AnimationDurationNormal = 0.3;
 static CGFloat HighlightedAlpha = 0.1;
 static CGFloat NormalAlpha = 1.0;
 
-@interface WPEditorToolbarButton ()
+@interface WPEditorToolbarButton ()<CAAnimationDelegate>
 
 @property (nonatomic, weak, readonly) id target;
 @property (nonatomic, assign, readonly) SEL selector;

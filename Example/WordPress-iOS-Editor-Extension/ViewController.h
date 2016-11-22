@@ -7,8 +7,9 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "WPEditorViewController.h"
 
-@interface ViewController : UIViewController
+@interface ViewController : WPEditorViewController<WPEditorViewControllerDelegate>
 
 
 @end

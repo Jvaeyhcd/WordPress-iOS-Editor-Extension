@@ -17,6 +17,8 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view, typically from a nib.
+    
+    [self initView];
 }
 
 
@@ -25,5 +27,27 @@
     // Dispose of any resources that can be recreated.
 }
 
+-(void)initView {
+    
+    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"发表"
+                                                                              style:UIBarButtonItemStylePlain
+                                                                             target:self
+                                                                             action:@selector(publishedAction:)];
+    
+    
+    self.title = @"发表文章";
+    
+    self.bodyPlaceholderText = @"写点什么吧";
+    self.titlePlaceholderText = @"请输入标题";
+    
+}
+
+-(void)backAction:(UIButton *)back{
+    
+}
+
+- (void)publishedAction:(UIButton *)sender {
+    
+}
 
 @end
