@@ -1,0 +1,6 @@
+framework module Pods_WordPress_iOS_Editor_Extension {
+  umbrella header "Pods-WordPress-iOS-Editor-Extension-umbrella.h"
+
+  export *
+  module * { export * }
+}
