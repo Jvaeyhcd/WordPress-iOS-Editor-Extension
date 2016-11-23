@@ -17,12 +17,15 @@
 #import "WPEditorField.h"
 #import "WPEditorView.h"
 #import "WPImageMetaViewController.h"
+#import <Qiniu/QiniuSDK.h>
 
 @interface ViewController ()<UINavigationControllerDelegate, UIImagePickerControllerDelegate, WPImageMetaViewControllerDelegate>
 @property(nonatomic, strong) NSMutableDictionary *mediaAdded;
 @property(nonatomic, strong) NSString *selectedMediaID;
 @property(nonatomic, strong) NSCache *videoPressCache;
-
+@property(nonatomic ,assign) float uploadPercent;
+@property(nonatomic, strong) NSString *uploadFileName;
+@property(nonatomic, strong) NSString *fileRootPath;
 @end
 
 @implementation ViewController
@@ -30,6 +33,10 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    
+    self.fileRootPath = @"http://oce53xy92.bkt.clouddn.com/";
+    self.uploadFileName = @"";
+    self.uploadPercent = 0.0;
     
     self.title = @"WordPress-Editor";
     self.delegate = self;
@@ -349,6 +356,38 @@
     }];
     
     self.mediaAdded[imageID] = progress;
+    
+    [self uploadImageToQiniu:imageData];
+}
+
+- (void)uploadImageToQiniu:(NSData *)imageData {
+    
+    self.uploadPercent = 0.0;
+    
+    NSString *token = @"7Xq5zkcqBp0MoxJLITHSSLWsXVT935wkMAAoQn5t:V4sR_kfa6gRjdy_RHt-EDByNFts=:eyJzY29wZSI6ImdvdmxhbiIsImRlYWRsaW5lIjoxNDc5OTAyOTExfQ==";
+    
+    
+    QNUploadOption *option = [[QNUploadOption alloc]initWithProgressHandler:^(NSString *key, float percent) {
+        
+        NSLog(@"percent = %f", percent);
+        self.uploadPercent = percent;
+    }];
+    
+    QNUploadManager *upManager = [[QNUploadManager alloc] init];
+    
+    //
+    NSDate *now = [NSDate new];
+    NSTimeInterval timeInterval = now.timeIntervalSince1970;
+    
+    int rac = (arc4random() % 10000) + 1;
+    
+    self.uploadFileName = [NSString stringWithFormat:@"%f%d.jpg", timeInterval, rac];
+    
+    [upManager putData:imageData key:self.uploadFileName token:token complete:^(QNResponseInfo *info, NSString *key, NSDictionary *resp) {
+        NSLog(@"%@", info);
+        NSLog(@"%@", resp);
+        self.uploadPercent = 1.0;
+    } option:option];
 }
 
 - (void)addImageAssetToContent:(PHAsset *)asset
@@ -435,22 +474,54 @@
     }
 }
 
+- (void)updateProgress:(NSProgress *)progress
+{
+    NSString *imageID = progress.userInfo[@"imageID"];
+    if (imageID) {
+        [self.editorView setProgress:progress.fractionCompleted onImage:imageID];
+        NSLog(@"progress = %lld", progress.completedUnitCount);
+        if (progress.fractionCompleted >= 1) {
+            [self.editorView replaceLocalImageWithRemoteImage:[[NSURL fileURLWithPath:progress.userInfo[@"url"]] absoluteString] uniqueId:imageID mediaId:[@(arc4random()) stringValue]];
+        }
+        return;
+    }
+    
+    NSString *videoID = progress.userInfo[@"videoID"];
+    if (videoID) {
+        [self.editorView setProgress:progress.fractionCompleted onVideo:videoID];
+        if (progress.fractionCompleted >= 1) {
+            NSString * videoURL = [[NSURL fileURLWithPath:progress.userInfo[@"url"]] absoluteString];
+            NSString * posterURL = [[NSURL fileURLWithPath:progress.userInfo[@"poster"]] absoluteString];
+            [self.editorView replaceLocalVideoWithID:videoID
+                                      forRemoteVideo:videoURL
+                                        remotePoster:posterURL
+                                          videoPress:videoID];
+            [self.videoPressCache setObject:@ {@"source":videoURL, @"poster":posterURL} forKey:videoID];
+        }
+        return;
+    }
+}
+
 - (void)timerFireMethod:(NSTimer *)timer
 {
     NSProgress *progress = (NSProgress *)timer.userInfo;
     progress.completedUnitCount++;
     NSString *imageID = progress.userInfo[@"imageID"];
     if (imageID) {
-        [self.editorView setProgress:progress.fractionCompleted onImage:imageID];
+        [self.editorView setProgress:self.uploadPercent onImage:imageID];
         // Uncomment this code if you need to test a failed image upload
         //    if (progress.fractionCompleted >= 0.15){
         //        [progress cancel];
         //        [self.editorView markImage:imageID failedUploadWithMessage:@"Failed"];
         //        [timer invalidate];
         //    }
-        NSLog(@"progress = %lld", progress.completedUnitCount);
-        if (progress.fractionCompleted >= 1) {
-            [self.editorView replaceLocalImageWithRemoteImage:[[NSURL fileURLWithPath:progress.userInfo[@"url"]] absoluteString] uniqueId:imageID mediaId:[@(arc4random()) stringValue]];
+        NSLog(@"progress = %f", self.uploadPercent);
+        if (self.uploadPercent >= 1) {
+            
+            NSString *imageUrl = [NSString stringWithFormat:@"%@%@", self.fileRootPath, self.uploadFileName];
+            
+            [self.editorView replaceLocalImageWithRemoteImage:imageUrl uniqueId:imageID mediaId:[@(arc4random()) stringValue]];
+            
             [timer invalidate];
         }
         return;
