@@ -86,7 +86,9 @@ strip_invalid_archs() {
 if [[ "$CONFIGURATION" == "Debug" ]]; then
   install_framework "$BUILT_PRODUCTS_DIR/AFNetworking/AFNetworking.framework"
   install_framework "$BUILT_PRODUCTS_DIR/CocoaLumberjack/CocoaLumberjack.framework"
+  install_framework "$BUILT_PRODUCTS_DIR/HappyDNS/HappyDNS.framework"
   install_framework "$BUILT_PRODUCTS_DIR/NSObject-SafeExpectations/NSObject_SafeExpectations.framework"
+  install_framework "$BUILT_PRODUCTS_DIR/Qiniu/Qiniu.framework"
   install_framework "$BUILT_PRODUCTS_DIR/UIAlertView+Blocks/UIAlertView_Blocks.framework"
   install_framework "$BUILT_PRODUCTS_DIR/WYPopoverController/WYPopoverController.framework"
   install_framework "$BUILT_PRODUCTS_DIR/WordPress-iOS-Editor-Extension/WordPress_iOS_Editor_Extension.framework"
@@ -96,7 +98,9 @@ fi
 if [[ "$CONFIGURATION" == "Release" ]]; then
   install_framework "$BUILT_PRODUCTS_DIR/AFNetworking/AFNetworking.framework"
   install_framework "$BUILT_PRODUCTS_DIR/CocoaLumberjack/CocoaLumberjack.framework"
+  install_framework "$BUILT_PRODUCTS_DIR/HappyDNS/HappyDNS.framework"
   install_framework "$BUILT_PRODUCTS_DIR/NSObject-SafeExpectations/NSObject_SafeExpectations.framework"
+  install_framework "$BUILT_PRODUCTS_DIR/Qiniu/Qiniu.framework"
   install_framework "$BUILT_PRODUCTS_DIR/UIAlertView+Blocks/UIAlertView_Blocks.framework"
   install_framework "$BUILT_PRODUCTS_DIR/WYPopoverController/WYPopoverController.framework"
   install_framework "$BUILT_PRODUCTS_DIR/WordPress-iOS-Editor-Extension/WordPress_iOS_Editor_Extension.framework"

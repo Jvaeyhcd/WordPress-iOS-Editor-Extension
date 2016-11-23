@@ -22,10 +22,15 @@ PODS:
     - CocoaLumberjack/Core
   - CocoaLumberjack/Extensions (2.2.0):
     - CocoaLumberjack/Default
+  - HappyDNS (0.3.10)
   - NSObject-SafeExpectations (0.0.2)
+  - Qiniu (7.1.4):
+    - AFNetworking (~> 3)
+    - HappyDNS (~> 0.3)
   - UIAlertView+Blocks (0.9)
   - WordPress-iOS-Editor-Extension (0.0.3):
     - NSObject-SafeExpectations (~> 0.0.2)
+    - Qiniu (~> 7.1.4)
     - UIAlertView+Blocks (~> 0.9.0)
     - WordPress-iOS-Shared (~> 0.5.9)
     - WordPressCom-Analytics-iOS (~> 0.1.13)
@@ -36,7 +41,6 @@ PODS:
   - WYPopoverController (0.3.9)
 
 DEPENDENCIES:
-  - AFNetworking (~> 3.1.0)
   - WordPress-iOS-Editor-Extension (from `../`)
 
 EXTERNAL SOURCES:
@@ -46,13 +50,15 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   AFNetworking: 5e0e199f73d8626b11e79750991f5d173d1f8b67
   CocoaLumberjack: 17fe8581f84914d5d7e6360f7c70022b173c3ae0
+  HappyDNS: 06a9fed2796663fd87626dbf02552933265bf059
   NSObject-SafeExpectations: 7d7f48df90df4e11da7cfe86b64f45eff7a7f521
+  Qiniu: a4c962782035ee25b9da3e195181d8c384bb75be
   UIAlertView+Blocks: a46c99c5144f6c5dbc7d62fd2a0678daceec89a3
-  WordPress-iOS-Editor-Extension: 81a077d4f86e5652697c6cca7069e265f578095a
+  WordPress-iOS-Editor-Extension: 4fc84f1990b403c431f23a3a9a96ffb86529fd59
   WordPress-iOS-Shared: 50a7bd7056b8721e86c3cbe167eab49ef85ec07b
   WordPressCom-Analytics-iOS: a92d9b1e75c14db406b203c7101d20557fabb9c0
   WYPopoverController: a9db25ac2841a686acdc0f3a99bdb21545db32f4
 
-PODFILE CHECKSUM: af353201c21abae2e191ae4b14d4de1b70a7d676
+PODFILE CHECKSUM: b7eddb84a80351705ba790b8446b1bc6c504376d
 
 COCOAPODS: 1.1.1

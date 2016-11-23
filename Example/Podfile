@@ -2,6 +2,5 @@ use_frameworks!
 
 target 'WordPress-iOS-Editor-Extension' do
   pod 'WordPress-iOS-Editor-Extension', :path => '../'
-  pod 'Qiniu', '~> 7.1.4'
 
 end
