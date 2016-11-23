@@ -10,11 +10,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "WordPress-iOS-Editor-Extension/ViewController.m"
-            timestampString = "501577462.526358"
+            timestampString = "501598169.738419"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "140"
-            endingLineNumber = "140"
+            startingLineNumber = "146"
+            endingLineNumber = "146"
             landmarkName = "-editorViewController:imageTapped:url:imageMeta:"
             landmarkType = "7">
          </BreakpointContent>
@@ -26,11 +26,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "WordPress-iOS-Editor-Extension/ViewController.m"
-            timestampString = "501592495.623987"
+            timestampString = "501598169.738419"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "503"
-            endingLineNumber = "503"
+            startingLineNumber = "520"
+            endingLineNumber = "520"
             landmarkName = "-updateProgress:"
             landmarkType = "7">
          </BreakpointContent>
@@ -42,11 +42,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "WordPress-iOS-Editor-Extension/ViewController.m"
-            timestampString = "501592495.623987"
+            timestampString = "501598169.738419"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "523"
-            endingLineNumber = "523"
+            startingLineNumber = "540"
+            endingLineNumber = "540"
             landmarkName = "-timerFireMethod:"
             landmarkType = "7">
          </BreakpointContent>
@@ -58,61 +58,13 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "WordPress-iOS-Editor-Extension/ViewController.m"
-            timestampString = "501592495.623987"
+            timestampString = "501598260.705951"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "389"
-            endingLineNumber = "389"
+            startingLineNumber = "394"
+            endingLineNumber = "394"
             landmarkName = "-uploadImageToQiniu:"
             landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "WordPress-iOS-Editor-Extension/ViewController.m"
-            timestampString = "501592495.623987"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "386"
-            endingLineNumber = "386"
-            landmarkName = "-uploadImageToQiniu:"
-            landmarkType = "7">
-            <Locations>
-               <Location
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "-[ViewController uploadImageToQiniu:]"
-                  moduleName = "WordPress-iOS-Editor-Extension"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/Jvaeyhcd/Github/WordPress-iOS-Editor-Extension/Example/WordPress-iOS-Editor-Extension/ViewController.m"
-                  timestampString = "501592496.706392"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "386"
-                  endingLineNumber = "386"
-                  offsetFromSymbolStart = "461">
-               </Location>
-               <Location
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "__37-[ViewController uploadImageToQiniu:]_block_invoke.307"
-                  moduleName = "WordPress-iOS-Editor-Extension"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/Jvaeyhcd/Github/WordPress-iOS-Editor-Extension/Example/WordPress-iOS-Editor-Extension/ViewController.m"
-                  timestampString = "501592496.708363"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "386"
-                  endingLineNumber = "386"
-                  offsetFromSymbolStart = "16">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

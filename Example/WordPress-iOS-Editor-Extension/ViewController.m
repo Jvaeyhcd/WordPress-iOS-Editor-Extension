@@ -40,10 +40,16 @@
     
     self.title = @"WordPress-Editor";
     self.delegate = self;
-    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Edit"
+    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"发布"
                                                                              style:UIBarButtonItemStylePlain
                                                                             target:self
                                                                             action:@selector(editTouchedUpInside)];
+    
+    self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"关闭"
+                                                                              style:UIBarButtonItemStylePlain
+                                                                             target:self
+                                                                             action:@selector(editTouchedUpInside)];
+    
     self.mediaAdded = [NSMutableDictionary dictionary];
     self.videoPressCache = [[NSCache alloc] init];
 }
@@ -364,7 +370,7 @@
     
     self.uploadPercent = 0.0;
     
-    NSString *token = @"7Xq5zkcqBp0MoxJLITHSSLWsXVT935wkMAAoQn5t:V4sR_kfa6gRjdy_RHt-EDByNFts=:eyJzY29wZSI6ImdvdmxhbiIsImRlYWRsaW5lIjoxNDc5OTAyOTExfQ==";
+    NSString *token = @"7Xq5zkcqBp0MoxJLITHSSLWsXVT935wkMAAoQn5t:e00FlOaAQ4QX50SV6nnERNdL8Qc=:eyJzY29wZSI6ImdvdmxhbiIsImRlYWRsaW5lIjoxNDc5OTA3NTg5fQ==";
     
     
     QNUploadOption *option = [[QNUploadOption alloc]initWithProgressHandler:^(NSString *key, float percent) {
@@ -384,9 +390,20 @@
     self.uploadFileName = [NSString stringWithFormat:@"%f%d.jpg", timeInterval, rac];
     
     [upManager putData:imageData key:self.uploadFileName token:token complete:^(QNResponseInfo *info, NSString *key, NSDictionary *resp) {
+        
+        int statusCode = info.statusCode;
+        
+        if (statusCode == 200) {
+            self.uploadPercent = 1.0;
+        } else {
+            
+        }
+        
+        NSLog(@"statusCode = %d", statusCode);
+        
         NSLog(@"%@", info);
         NSLog(@"%@", resp);
-        self.uploadPercent = 1.0;
+        
     } option:option];
 }
 
