@@ -1,3 +1,11 @@
+//
+//  Copyright (c) 2014 Automattic Inc.
+//
+//  This source file is based on ZSSRichTextEditorViewController.h from ZSSRichTextEditor
+//  Created by Nicholas Hubbard on 11/30/13.
+//  Copyright (c) 2013 Zed Said Studio. All rights reserved.
+//
+
 #import <UIKit/UIKit.h>
 
 #import "ZSSTextView.h"
@@ -59,7 +67,7 @@
  *	@param		field			The focused field.
  */
 - (void)editorView:(WPEditorView*)editorView
-	  fieldFocused:(WPEditorField*)field;
+      fieldFocused:(WPEditorField*)field;
 
 /**
  *	@brief		Received when the editor focus changes on a HTML mode field.
@@ -68,7 +76,7 @@
  *	@param		view			The focused view.
  */
 - (void)editorView:(WPEditorView*)editorView
-      sourceFieldFocused:(UIView*)view;
+sourceFieldFocused:(UIView*)view;
 
 /**
  *	@brief		Received when the user taps on a link in the editor.
@@ -81,8 +89,8 @@
  *				NO if it wasn't.
  */
 - (BOOL)editorView:(WPEditorView*)editorView
-		linkTapped:(NSURL*)url
-			 title:(NSString*)title;
+        linkTapped:(NSURL*)url
+             title:(NSString*)title;
 
 /**
  *	@brief		Received when the user taps on a image in the editor.
@@ -95,8 +103,8 @@
  *				NO if it wasn't.
  */
 - (BOOL)editorView:(WPEditorView*)editorView
-        imageTapped:(NSString *)imageId
-                url:(NSURL *)url;
+       imageTapped:(NSString *)imageId
+               url:(NSURL *)url;
 
 /**
  * @brief		Received when the user taps on a image in the editor.
@@ -113,7 +121,7 @@
          imageMeta:(WPImageMeta *)imageMeta;
 
 /**
- * @brief		Received when the user taps on a image in the editor.
+ * @brief		Received when the user taps on a video in the editor.
  *
  * @param		editorView	The editor view.
  * @param		videoId		The id of image of the image that was tapped.
@@ -153,6 +161,16 @@ stylesForCurrentSelection:(NSArray*)styles;
  */
 - (void)editorView:(WPEditorView*)editorView
      videoReplaced:(NSString *)videoID;
+
+/**
+ * @brief		Received when an image is pasted into the editor.
+ *
+ * @param       editorView  The editor view.
+ * @param       imageId     The id of image of the image that was pasted.
+ *
+ */
+- (void)editorView:(WPEditorView*)editorView
+       imagePasted:(UIImage *)image;
 
 /**
  * @brief		Received when a the editor request the url for a videopress shortcode.
@@ -195,7 +213,7 @@ stylesForCurrentSelection:(NSArray*)styles;
 @property (nonatomic, weak, readonly) WPEditorField* focusedField;
 @property (nonatomic, strong, readonly) WPEditorField* titleField;
 @property (nonatomic, strong, readonly) UITextField *sourceViewTitleField;
-@property(nonatomic) BOOL showTitleField;
+@property (nonatomic, strong, readonly) UIView *sourceContentDividerView;
 
 #pragma mark - Properties: Subviews
 @property (nonatomic, strong, readonly) ZSSTextView *sourceView;
@@ -255,7 +273,7 @@ stylesForCurrentSelection:(NSArray*)styles;
 - (NSString*)selectedText;
 
 - (void)setSelectedColor:(UIColor*)color
-					 tag:(int)tag;
+                     tag:(int)tag;
 
 #pragma mark - Images
 
@@ -286,8 +304,9 @@ stylesForCurrentSelection:(NSArray*)styles;
  *  @param      uniqueId    This is a unique ID provided by the caller.  It exists as a mechanism
  *                          to update the image node with the remote URL
  *                          when replaceLocalImageWithRemoteImage() is called.
+ *  @param      mediaId     The mediaID of the image on the server
  */
-- (void)replaceLocalImageWithRemoteImage:(NSString*)url uniqueId:(NSString*)uniqueId;
+- (void)replaceLocalImageWithRemoteImage:(NSString*)url uniqueId:(NSString*)uniqueId mediaId:(NSString *)mediaId;
 
 - (void)updateImage:(NSString *)url alt:(NSString *)alt;
 
@@ -313,6 +332,15 @@ stylesForCurrentSelection:(NSArray*)styles;
 
 - (void)removeImage:(NSString*)uniqueId;
 
+#pragma mark - Localization
+
+/**
+ *	@brief		Sets the text for the edit button on images.  Useful for localization.
+ *
+ *	@param		text		The text to use.  Cannot be nil.
+ */
+- (void)setImageEditText:(NSString *)text;
+
 #pragma mark - Videos
 
 /**
@@ -329,7 +357,7 @@ stylesForCurrentSelection:(NSArray*)styles;
  *
  *  @param uniqueId       Unique ID to identity the video for progress report and later on to be replaced by the final video.
  *  @param posterImageURL URL for a image file to show while the video is being loaded.
-
+ 
  */
 - (void)insertInProgressVideoWithID:(NSString *)uniqueId
                    usingPosterImage:(NSString *)posterImageURL;
@@ -403,7 +431,7 @@ stylesForCurrentSelection:(NSArray*)styles;
  *	@param		title	The link title.  Cannot be nil.
  */
 - (void)insertLink:(NSString *)url
-			 title:(NSString*)title;
+             title:(NSString*)title;
 
 /**
  *	@brief		Call this method to know if the current selection is part of a link.
@@ -419,7 +447,7 @@ stylesForCurrentSelection:(NSArray*)styles;
  *	@param		title	The link title.  Cannot be nil.
  */
 - (void)updateLink:(NSString *)url
-			 title:(NSString*)title;
+             title:(NSString*)title;
 
 - (void)quickLink;
 - (void)removeLink;
@@ -474,8 +502,5 @@ stylesForCurrentSelection:(NSArray*)styles;
 - (void)heading5;
 - (void)heading6;
 - (void)removeFormat;
-- (NSString *)getCoverImage;
-- (NSArray *)getAllImage;
-- (void)atUser:(NSString *)text url:(NSString *)url;
-- (void)showTitle:(BOOL)showTitleField;
+
 @end

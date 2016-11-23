@@ -1,34 +1,22 @@
 #import "WPEditorViewController.h"
 #import <MobileCoreServices/MobileCoreServices.h>
 #import <UIKit/UIKit.h>
+#import <WordPressComAnalytics/WPAnalytics.h>
 
-#import "WPEditorConfiguration.h"
 #import "WPEditorField.h"
 #import "WPEditorToolbarButton.h"
 #import "WPEditorView.h"
 #import "WPImageMeta.h"
 #import "ZSSBarButtonItem.h"
 
-#import "WPDeviceIdentification.h"
-#import "moreItmsController.h"
-#import "imageSelectController.h"
-
-CGFloat const EPVCStandardOffset = 10.0;
-NSInteger const WPImageAlertViewTag = 91;
-NSInteger const WPLinkAlertViewTag = 92;
-
-@interface WPEditorViewController () <HRColorPickerViewControllerDelegate, UIAlertViewDelegate, WPEditorToolbarViewDelegate, WPEditorViewDelegate,moreItmsDelegate,imageSelectDelegate, WYPopoverControllerDelegate>
+@interface WPEditorViewController () <HRColorPickerViewControllerDelegate, WPEditorFormatbarViewDelegate, WPEditorViewDelegate>
 
 @property (nonatomic, strong) NSString *htmlString;
 @property (nonatomic, strong) NSArray *editorItemsEnabled;
-@property (nonatomic, strong) UIAlertView *alertView;
 @property (nonatomic, strong) NSString *selectedImageURL;
 @property (nonatomic, strong) NSString *selectedImageAlt;
 @property (nonatomic) BOOL didFinishLoadingEditor;
 @property (nonatomic, weak) WPEditorField* focusedField;
-
-@property(nonatomic,retain) WYPopoverController *wypopoverController;
-@property(retain,nonatomic)imageSelectController *imageselectController;
 
 #pragma mark - Properties: First Setup On View Will Appear
 @property (nonatomic, assign, readwrite) BOOL isFirstSetupComplete;
@@ -36,10 +24,15 @@ NSInteger const WPLinkAlertViewTag = 92;
 #pragma mark - Properties: Editing
 @property (nonatomic, assign, readwrite, getter=isEditingEnabled) BOOL editingEnabled;
 @property (nonatomic, assign, readwrite, getter=isEditing) BOOL editing;
+@property (nonatomic, assign, readwrite, getter=isEditingTitle) BOOL editingTitle;
 @property (nonatomic, assign, readwrite) BOOL wasEditing;
 
 #pragma mark - Properties: Editor View
 @property (nonatomic, strong, readwrite) WPEditorView *editorView;
+
+#pragma mark - Properties: Toolbar
+
+@property (nonatomic, strong, readwrite) WPEditorFormatbarView* toolbarView;
 
 @end
 
@@ -100,68 +93,26 @@ NSInteger const WPLinkAlertViewTag = 92;
 - (void)createToolbarView
 {
     NSAssert(!_toolbarView, @"The toolbar view should not exist here.");
-    
-    CGRect toolbarFrame = CGRectMake(0,
-                                     0,
-                                     CGRectGetWidth(self.view.frame),
-                                     [WPEditorToolbarView height]);
-    
-    _toolbarView = [[WPEditorToolbarView alloc] initWithFrame:toolbarFrame];
-    _toolbarView.delegate = self;
-    _toolbarView.autoresizingMask = UIViewAutoresizingFlexibleWidth;
-    _toolbarView.borderColor = BASECOLOR;
-    _toolbarView.itemTintColor = BASECOLOR;
-    _toolbarView.selectedItemTintColor = [WPStyleGuide baseDarkerBlue];
-    
-    // Explicit design decision to use non-standard colors. See:
-    // https://github.com/wordpress-mobile/WordPress-Editor-iOS/issues/657#issuecomment-113651034
-    _toolbarView.backgroundColor = [UIColor colorWithHexString:@"F9FBFC"];
-    _toolbarView.disabledItemTintColor = [UIColor colorWithRed:0.78
-                                                         green:0.84
-                                                          blue:0.88
-                                                         alpha:0.5];
-    /////
-    
-    _toolbarView.items = [self itemsForToolbar];
-}
--(void)setItemTintColor:(UIColor *)itemTintColor{
 
-    _toolbarView.itemTintColor = itemTintColor;
-    _toolbarView.borderColor = itemTintColor;
+    NSBundle *editorBundle = [NSBundle bundleForClass:[WPEditorFormatbarView class]];
+    _toolbarView = (WPEditorFormatbarView *)[[editorBundle loadNibNamed:NSStringFromClass([WPEditorFormatbarView class]) owner:nil options:nil] firstObject];
+    _toolbarView.delegate = self;
 }
 
 #pragma mark - UIViewController
 
 - (void)viewDidLoad
 {
-    [super viewDidLoad];
-	
-    // It's important to set this up here, in case the main view of the VC is unloaded due to low
-    // memory (it can happen if the view is hidden).
-    //
+    [super viewDidLoad];	
     self.isFirstSetupComplete = NO;
     self.didFinishLoadingEditor = NO;
-    self.view.backgroundColor = [UIColor whiteColor];
-    
-    // Calling the fonts we use here so they are availible to the UIWebView
-    [WPFontManager merriweatherBoldFontOfSize:16.0];
-    [WPFontManager merriweatherBoldItalicFontOfSize:16.0];
-    [WPFontManager merriweatherItalicFontOfSize:16.0];
-    [WPFontManager merriweatherLightFontOfSize:16.0];
-    [WPFontManager merriweatherRegularFontOfSize:16.0];
-    [WPFontManager systemRegularFontOfSize:16.0];
-    [WPFontManager systemItalicFontOfSize:16.0];
-    [WPFontManager systemBoldFontOfSize:16.0];
-    [WPFontManager systemLightFontOfSize:16.0];
-    [WPFontManager systemSemiBoldFontOfSize: 16.0];
-	
-    WPEditorConfiguration *configuration  = [WPEditorConfiguration sharedWPEditorConfiguration];
-    configuration.localizable = kLMChinese;
-    configuration.enableImageSelect =   (ZSSRichTextEditorImageSelectPhotoLibrary |ZSSRichTextEditorImageSelectTakePhoto |
-    ZSSRichTextEditorImageSelectInsertNetwork);
-    
     [self createToolbarView];
     [self buildTextViews];
+    [self customizeAppearance];
+}
+
+- (void)customizeAppearance {
+    self.view.backgroundColor = [UIColor whiteColor];
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -169,8 +120,6 @@ NSInteger const WPLinkAlertViewTag = 92;
     [super viewWillAppear:animated];
 	
     if (!self.isFirstSetupComplete) {
-        self.isFirstSetupComplete = YES;
-
         // When restoring state, the navigationController is nil when the view loads,
         // so configure its appearance here instead.
         self.navigationController.navigationBar.translucent = NO;
@@ -187,12 +136,16 @@ NSInteger const WPLinkAlertViewTag = 92;
     [self.navigationController setToolbarHidden:YES animated:animated];
 }
 
--(void)viewDidAppear:(BOOL)animated {
+- (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
     if (self.isFirstSetupComplete) {
         [self restoreEditSelection];
+    } else {
+        // Note: Very important this is set here otherwise the post will not initially
+        // load properly in the editor. Please be careful if you make a change here and
+        // test the editor within WPiOS!
+        self.isFirstSetupComplete = YES;
     }
-
 }
 
 - (void)viewWillDisappear:(BOOL)animated
@@ -205,155 +158,88 @@ NSInteger const WPLinkAlertViewTag = 92;
     [self saveEditSelection];
 }
 
-#pragma mark - Toolbar items
-
-- (NSMutableArray *)itemsForToolbar
+- (void)traitCollectionDidChange:(UITraitCollection *) previousTraitCollection
 {
-    NSMutableArray *items = [[NSMutableArray alloc] init];
-	
-    if ([self.toolbarView hasSomeEnabledToolbarItems]) {
-		if ([self canShowInsertImageBarButton]) {
-			[items addObject:[self insertImageBarButton]];
-		}
-		
-		if ([self canShowBoldBarButton]) {
-			[items addObject:[self boldBarButton]];
-		}
-		
-		if ([self canShowItalicBarButton]) {
-			[items addObject:[self italicBarButton]];
-		}
-		
-		if ([self canShowSubscriptBarButton]) {
-			[items addObject:[self subscriptBarButton]];
-		}
-		
-		if ([self canShowSuperscriptBarButton]) {
-			[items addObject:[self superscriptBarButton]];
-		}
-		
-		if ([self canShowStrikeThroughBarButton]) {
-			[items addObject:[self strikeThroughBarButton]];
-		}
-		
-		if ([self canShowUnderlineBarButton]) {
-			[items addObject:[self underlineBarButton]];
-		}
-		
-		if (!IS_IPAD && [self canShowBlockQuoteBarButton]) {
-			[items addObject:[self blockQuoteBarButton]];
-		}
-		
-		if ([self canShowRemoveFormatBarButton]) {
-			[items addObject:[self removeFormatBarButton]];
-		}
-		
-		if ([self canShowUndoBarButton]) {
-			[items addObject:[self undoBarButton]];
-		}
-		
-		if ([self canShowRedoBarButton]) {
-			[items addObject:[self redoBarButton]];
-		}
-		
-		if ([self canShowAlignLeftBarButton]) {
-			[items addObject:[self alignLeftBarButton]];
-		}
-		
-		if ([self canShowAlignCenterBarButton]) {
-			[items addObject:[self alignCenterBarButton]];
-		}
-		
-		if ([self canShowAlignRightBarButton]) {
-			[items addObject:[self alignRightBarButton]];
-		}
-		
-		if ([self canShowAlignFullBarButton]) {
-			[items addObject:[self alignFullBarButton]];
-		}
-		
-		if ([self canShowHeader1BarButton]) {
-			[items addObject:[self header1BarButton]];
-		}
-		
-		if ([self canShowHeader2BarButton]) {
-			[items addObject:[self header2BarButton]];
-		}
-		
-		if ([self canShowHeader3BarButton]) {
-			[items addObject:[self header3BarButton]];
-		}
-		
-		if ([self canShowHeader4BarButton]) {
-			[items addObject:[self header4BarButton]];
-		}
-		
-		if ([self canShowHeader5BarButton]) {
-			[items addObject:[self header5BarButton]];
-		}
-		
-		if ([self canShowHeader6BarButton]) {
-			[items addObject:[self header6BarButton]];
-		}
-		
-		if ([self canShowTextColorBarButton]) {
-			[items addObject:[self textColorBarButton]];
-		}
-		
-		if ([self canShowBackgroundColorBarButton]) {
-			[items addObject:[self backgroundColorBarButton]];
-		}
-        
-        if (IS_IPAD && [self canShowInsertLinkBarButton]) {
-            [items addObject:[self inserLinkBarButton]];
-        }
-		
-		if ([self canShowUnorderedListBarButton]) {
-			[items addObject:[self unorderedListBarButton]];
-		}
-		
-		if ([self canShowOrderedListBarButton]) {
-			[items addObject:[self orderedListBarButton]];
-		}
-		
-		if ([self canShowHorizontalRuleBarButton]) {
-			[items addObject:[self horizontalRuleBarButton]];
-		}
-		
-		if ([self canShowIndentBarButton]) {
-			[items addObject:[self indentBarButton]];
-		}
-		
-		if ([self canShowOutdentBarButton]) {
-			[items addObject:[self outdentBarButton]];
-		}
-		
-		if (!IS_IPAD && [self canShowInsertLinkBarButton]) {
-			[items addObject:[self inserLinkBarButton]];
-		}
-        
-        if (IS_IPAD && [self canShowBlockQuoteBarButton]) {
-            [items addObject:[self blockQuoteBarButton]];
-        }
-		
-		if ([self canShowRemoveLinkBarButton]) {
-			[items addObject:[self removeLinkBarButton]];
-		}
-		
-		if ([self canShowQuickLinkBarButton]) {
-			[items addObject:[self quickLinkBarButton]];
-		}
-		
-		if ([self canShowSourceBarButton]) {
-			[items addObject:[self showSourceBarButton]];
-		}
-        if ([self canShowMoreBarButton]) {
-            [items addObject:[self showMoreBarButton]];
-        }
-        
-	}
-		
-	return items;
+    [super traitCollectionDidChange: previousTraitCollection];
+    [self recoverFromViewSizeChange];
+}
+
+- (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator
+{
+    [self recoverFromViewSizeChange];
+}
+
+- (void)willTransitionToTraitCollection:(UITraitCollection *)newCollection withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator
+{
+    [super willTransitionToTraitCollection:newCollection withTransitionCoordinator:coordinator];
+    [self.toolbarView setNeedsLayout];
+}
+
+#pragma mark - Keyboard shortcuts
+
+- (BOOL)canBecomeFirstResponder
+{
+    return YES;
+}
+
+- (NSArray<UIKeyCommand *> *)keyCommands
+{
+    if (self.isEditingTitle) {
+        return @[];
+    }
+
+    // Note that due to an iOS 9 bug, the custom methods for bold and italic
+    // don't actually get called: http://www.openradar.me/25463955
+    return @[
+             [UIKeyCommand keyCommandWithInput:@"B"
+                                 modifierFlags:UIKeyModifierCommand
+                                        action:@selector(setBold)
+                          discoverabilityTitle:NSLocalizedString(@"Bold", @"Discoverability title for bold formatting keyboard shortcut.")],
+             [UIKeyCommand keyCommandWithInput:@"I"
+                                 modifierFlags:UIKeyModifierCommand
+                                        action:@selector(setItalic)
+                          discoverabilityTitle:NSLocalizedString(@"Italic", @"Discoverability title for italic formatting keyboard shortcut.")],
+             [UIKeyCommand keyCommandWithInput:@"D"
+                                 modifierFlags:UIKeyModifierCommand|UIKeyModifierAlternate
+                                        action:@selector(handleKeyCommandStrikethrough)
+                          discoverabilityTitle:NSLocalizedString(@"Strikethrough", @"Discoverability title for strikethrough formatting keyboard shortcut.")],
+             [UIKeyCommand keyCommandWithInput:@"U"
+                                 modifierFlags:UIKeyModifierCommand
+                                        action:@selector(setUnderline)
+                          discoverabilityTitle:NSLocalizedString(@"Underline", @"Discoverability title for underline formatting keyboard shortcut.")],
+             [UIKeyCommand keyCommandWithInput:@"Q"
+                                 modifierFlags:UIKeyModifierCommand|UIKeyModifierAlternate
+                                        action:@selector(setBlockQuote)
+                          discoverabilityTitle:NSLocalizedString(@"Block Quote", @"Discoverability title for block quote keyboard shortcut.")],
+             [UIKeyCommand keyCommandWithInput:@"K"
+                                 modifierFlags:UIKeyModifierCommand
+                                        action:@selector(linkBarButtonTapped)
+                          discoverabilityTitle:NSLocalizedString(@"Insert Link", @"Discoverability title for insert link keyboard shortcut.")],
+             [UIKeyCommand keyCommandWithInput:@"M"
+                                 modifierFlags:UIKeyModifierCommand|UIKeyModifierAlternate
+                                        action:@selector(didTouchMediaOptions)
+                          discoverabilityTitle:NSLocalizedString(@"Insert Media", @"Discoverability title for insert media keyboard shortcut.")],
+             [UIKeyCommand keyCommandWithInput:@"U"
+                                 modifierFlags:UIKeyModifierCommand|UIKeyModifierAlternate
+                                        action:@selector(setUnorderedList)
+                          discoverabilityTitle:NSLocalizedString(@"Bullet List", @"Discoverability title for bullet list keyboard shortcut.")],
+             [UIKeyCommand keyCommandWithInput:@"O"
+                                 modifierFlags:UIKeyModifierCommand|UIKeyModifierAlternate
+                                        action:@selector(setOrderedList)
+                          discoverabilityTitle:NSLocalizedString(@"Numbered List", @"Discoverability title for numbered list keyboard shortcut.")],
+             [UIKeyCommand keyCommandWithInput:@"H"
+                                 modifierFlags:UIKeyModifierCommand|UIKeyModifierShift
+                                        action:@selector(showHTMLSource:)
+                          discoverabilityTitle:NSLocalizedString(@"Toggle HTML Source ", @"Discoverability title for HTML keyboard shortcut.")]
+             ];
+}
+
+- (void)handleKeyCommandStrikethrough
+{
+    [self setStrikethrough];
+
+    // Ensure that the toolbar button is appropriately selected / deselected
+    [self.toolbarView toggleSelectionForToolBarItemWithTag:kWPEditorViewControllerElementStrikeThroughBarButton];
 }
 
 #pragma mark - Toolbar: helper methods
@@ -365,625 +251,11 @@ NSInteger const WPLinkAlertViewTag = 92;
     }
 }
 
-- (BOOL)canShowToolbarOption:(ZSSRichTextEditorToolbar)toolbarOption
-{
-    return [self.toolbarView canShowToolbarOption:toolbarOption];
-}
-
-- (BOOL)canShowAlignLeftBarButton
-{
-	return [self canShowToolbarOption:ZSSRichTextEditorToolbarJustifyLeft];
-}
-
-- (BOOL)canShowAlignCenterBarButton
-{
-	return [self canShowToolbarOption:ZSSRichTextEditorToolbarJustifyCenter];
-}
-
-- (BOOL)canShowAlignFullBarButton
-{
-	return [self canShowToolbarOption:ZSSRichTextEditorToolbarJustifyFull];
-}
-
-- (BOOL)canShowAlignRightBarButton
-{
-	return [self canShowToolbarOption:ZSSRichTextEditorToolbarJustifyRight];
-}
-
-- (BOOL)canShowBackgroundColorBarButton
-{
-	return [self canShowToolbarOption:ZSSRichTextEditorToolbarBackgroundColor];
-}
-
-- (BOOL)canShowBlockQuoteBarButton
-{
-	return [self canShowToolbarOption:ZSSRichTextEditorToolbarBlockQuote];
-}
-
-- (BOOL)canShowBoldBarButton
-{
-	return [self canShowToolbarOption:ZSSRichTextEditorToolbarBold];
-}
-
-- (BOOL)canShowHeader1BarButton
-{
-	return [self canShowToolbarOption:ZSSRichTextEditorToolbarH1];
-}
-
-- (BOOL)canShowHeader2BarButton
-{
-	return [self canShowToolbarOption:ZSSRichTextEditorToolbarH2];
-}
-
-- (BOOL)canShowHeader3BarButton
-{
-	return [self canShowToolbarOption:ZSSRichTextEditorToolbarH3];
-}
-
-- (BOOL)canShowHeader4BarButton
-{
-	return [self canShowToolbarOption:ZSSRichTextEditorToolbarH4];
-}
-
-- (BOOL)canShowHeader5BarButton
-{
-	return [self canShowToolbarOption:ZSSRichTextEditorToolbarH5];
-}
-
-- (BOOL)canShowHeader6BarButton
-{
-	return [self canShowToolbarOption:ZSSRichTextEditorToolbarH6];
-}
-
-- (BOOL)canShowHorizontalRuleBarButton
-{
-	return [self canShowToolbarOption:ZSSRichTextEditorToolbarHorizontalRule];
-}
-
-- (BOOL)canShowIndentBarButton
-{
-	return [self canShowToolbarOption:ZSSRichTextEditorToolbarIndent];
-}
-
-- (BOOL)canShowInsertImageBarButton
-{
-	return [self canShowToolbarOption:ZSSRichTextEditorToolbarInsertImage];
-}
-
-- (BOOL)canShowInsertLinkBarButton
-{
-	return [self canShowToolbarOption:ZSSRichTextEditorToolbarInsertLink];
-}
-
-- (BOOL)canShowItalicBarButton
-{
-	return [self canShowToolbarOption:ZSSRichTextEditorToolbarItalic];
-}
-
-- (BOOL)canShowOrderedListBarButton
-{
-	return [self canShowToolbarOption:ZSSRichTextEditorToolbarOrderedList];
-}
-
-- (BOOL)canShowOutdentBarButton
-{
-	return [self canShowToolbarOption:ZSSRichTextEditorToolbarOutdent];
-}
-
-- (BOOL)canShowQuickLinkBarButton
-{
-	return [self canShowToolbarOption:ZSSRichTextEditorToolbarQuickLink];
-}
-
-- (BOOL)canShowRedoBarButton
-{
-	return [self canShowToolbarOption:ZSSRichTextEditorToolbarRedo];
-}
-
-- (BOOL)canShowRemoveFormatBarButton
-{
-	return [self canShowToolbarOption:ZSSRichTextEditorToolbarRemoveFormat];
-}
-
-- (BOOL)canShowRemoveLinkBarButton
-{
-	return [self canShowToolbarOption:ZSSRichTextEditorToolbarRemoveLink];
-}
-
-- (BOOL)canShowSourceBarButton
-{
-	return [self canShowToolbarOption:ZSSRichTextEditorToolbarViewSource];
-}
-
-- (BOOL)canShowStrikeThroughBarButton
-{
-	return [self canShowToolbarOption:ZSSRichTextEditorToolbarStrikeThrough];
-}
-
-- (BOOL)canShowSubscriptBarButton
-{
-	return [self canShowToolbarOption:ZSSRichTextEditorToolbarSubscript];
-}
-
-- (BOOL)canShowSuperscriptBarButton
-{
-	return [self canShowToolbarOption:ZSSRichTextEditorToolbarSuperscript];
-}
-
-- (BOOL)canShowTextColorBarButton
-{
-	return [self canShowToolbarOption:ZSSRichTextEditorToolbarTextColor];
-}
-
-- (BOOL)canShowUnderlineBarButton
-{
-	return [self canShowToolbarOption:ZSSRichTextEditorToolbarUnderline];
-}
-
-- (BOOL)canShowUndoBarButton
-{
-	return [self canShowToolbarOption:ZSSRichTextEditorToolbarUndo];
-}
-
-- (BOOL)canShowUnorderedListBarButton
-{
-	return [self canShowToolbarOption:ZSSRichTextEditorToolbarUnorderedList];
-}
-- (BOOL)canShowMoreBarButton
-{
-    return [self canShowToolbarOption:ZSSRichTextEditorToolbarMore];
-}
-
-#pragma mark - Toolbar: buttons
-
-- (ZSSBarButtonItem*)barButtonItemWithTag:(WPEditorViewControllerElementTag)tag
-							 htmlProperty:(NSString*)htmlProperty
-								imageName:(NSString*)imageName
-								   target:(id)target
-								 selector:(SEL)selector
-					   accessibilityLabel:(NSString*)accessibilityLabel
-{
-    return [self.toolbarView barButtonItemWithTag:tag
-                                     htmlProperty:htmlProperty
-                                        imageName:imageName
-                                           target:target
-                                         selector:selector
-                               accessibilityLabel:accessibilityLabel];
-}
-
-- (ZSSBarButtonItem*)alignLeftBarButton
-{
-	ZSSBarButtonItem *barButtonItem = [self barButtonItemWithTag:kWPEditorViewControllerElementTagJustifyLeftBarButton
-													htmlProperty:@"justifyLeft"
-													   imageName:@"ZSSleftjustify@2x"
-														  target:self
-														selector:@selector(alignLeft)
-											  accessibilityLabel:nil];
-	
-	return barButtonItem;
-}
-
-- (UIBarButtonItem*)alignCenterBarButton
-{
-	ZSSBarButtonItem *barButtonItem = [self barButtonItemWithTag:kWPEditorViewControllerElementTagJustifyCenterBarButton
-													htmlProperty:@"justifyCenter"
-													   imageName:@"ZSScenterjustify@2x"
-														  target:self
-														selector:@selector(alignCenter)
-											  accessibilityLabel:nil];
-	
-	return barButtonItem;
-}
-
-- (UIBarButtonItem*)alignFullBarButton
-{
-	ZSSBarButtonItem *barButtonItem = [self barButtonItemWithTag:kWPEditorViewControllerElementTagJustifyFullBarButton
-													htmlProperty:@"justifyFull"
-													   imageName:@"ZSSforcejustify@2x"
-														  target:self
-														selector:@selector(alignFull)
-											  accessibilityLabel:nil];
-	
-	return barButtonItem;
-}
-
-- (UIBarButtonItem*)alignRightBarButton
-{
-	ZSSBarButtonItem *barButtonItem = [self barButtonItemWithTag:kWPEditorViewControllerElementTagJustifyRightBarButton
-													htmlProperty:@"justifyRight"
-													   imageName:@"ZSSrightjustify@2x"
-														  target:self
-														selector:@selector(alignRight)
-											  accessibilityLabel:nil];
-	
-	return barButtonItem;
-}
-
-- (UIBarButtonItem*)backgroundColorBarButton
-{
-	ZSSBarButtonItem *barButtonItem = [self barButtonItemWithTag:kWPEditorViewControllerElementTagBackgroundColorBarButton
-													htmlProperty:@"backgroundColor"
-													   imageName:@"ZSSbgcolor"
-														  target:self
-														selector:@selector(bgColor)
-											  accessibilityLabel:nil];
-	
-	return barButtonItem;
-}
-
-- (UIBarButtonItem*)blockQuoteBarButton
-{
-	NSString* accessibilityLabel = NSLocalizedString(@"Block Quote",
-													 @"Accessibility label for block quote button on formatting toolbar.");
-	
-	ZSSBarButtonItem *barButtonItem = [self barButtonItemWithTag:kWPEditorViewControllerElementTagBlockQuoteBarButton
-													htmlProperty:@"blockquote"
-													   imageName:@"icon_format_quote"
-														  target:self
-														selector:@selector(setBlockQuote)
-											  accessibilityLabel:accessibilityLabel];
-	
-	return barButtonItem;
-}
-
-- (UIBarButtonItem*)boldBarButton
-{
-	NSString* accessibilityLabel = NSLocalizedString(@"Bold",
-													 @"Accessibility label for bold button on formatting toolbar.");
-	
-	ZSSBarButtonItem *barButtonItem = [self barButtonItemWithTag:kWPEditorViewControllerElementTagBoldBarButton
-													htmlProperty:@"bold"
-													   imageName:@"icon_format_bold@2x"
-														  target:self
-														selector:@selector(setBold)
-											  accessibilityLabel:accessibilityLabel];
-	
-	return barButtonItem;
-}
-
-- (UIBarButtonItem*)header1BarButton
-{
-	ZSSBarButtonItem *barButtonItem = [self barButtonItemWithTag:kWPEditorViewControllerElementTagH1BarButton
-													htmlProperty:@"h1"
-													   imageName:@"ZSSh1@2x"
-														  target:self
-														selector:@selector(heading1)
-											  accessibilityLabel:nil];
-	
-	return barButtonItem;
-}
-
-- (UIBarButtonItem*)header2BarButton
-{
-	ZSSBarButtonItem *barButtonItem = [self barButtonItemWithTag:kWPEditorViewControllerElementTagH2BarButton
-													htmlProperty:@"h2"
-													   imageName:@"ZSSh2"
-														  target:self
-														selector:@selector(heading2)
-											  accessibilityLabel:nil];
-	
-	return barButtonItem;
-}
-
-- (UIBarButtonItem*)header3BarButton
-{
-	ZSSBarButtonItem *barButtonItem = [self barButtonItemWithTag:kWPEditorViewControllerElementTagH3BarButton
-													htmlProperty:@"h3"
-													   imageName:@"ZSSh3"
-														  target:self
-														selector:@selector(heading3)
-											  accessibilityLabel:nil];
-	
-	return barButtonItem;
-}
-
-- (UIBarButtonItem*)header4BarButton
-{
-	ZSSBarButtonItem *barButtonItem = [self barButtonItemWithTag:kWPEditorViewControllerElementTagH4BarButton
-													htmlProperty:@"h4"
-													   imageName:@"ZSSh4"
-														  target:self
-														selector:@selector(heading4)
-											  accessibilityLabel:nil];
-	
-	return barButtonItem;
-}
-
-- (UIBarButtonItem*)header5BarButton
-{
-	ZSSBarButtonItem *barButtonItem = [self barButtonItemWithTag:kWPEditorViewControllerElementTagH5BarButton
-													htmlProperty:@"h5"
-													   imageName:@"ZSSh5"
-														  target:self
-														selector:@selector(heading5)
-											  accessibilityLabel:nil];
-	
-	return barButtonItem;
-}
-
-- (UIBarButtonItem*)header6BarButton
-{
-	ZSSBarButtonItem *barButtonItem = [self barButtonItemWithTag:kWPEditorViewControllerElementTagH6BarButton
-													htmlProperty:@"h6"
-													   imageName:@"ZSSh6"
-														  target:self
-														selector:@selector(heading6)
-											  accessibilityLabel:nil];
-	
-	return barButtonItem;
-}
-		
-- (UIBarButtonItem*)horizontalRuleBarButton
-{
-	ZSSBarButtonItem *barButtonItem = [self barButtonItemWithTag:kWPEditorViewControllerElementTagHorizontalRuleBarButton
-													htmlProperty:@"horizontalRule"
-													   imageName:@"ZSShorizontalrule"
-														  target:self
-														selector:@selector(setHR)
-											  accessibilityLabel:nil];
-	
-	return barButtonItem;
-}
-
-- (UIBarButtonItem*)indentBarButton
-{
-	ZSSBarButtonItem *barButtonItem = [self barButtonItemWithTag:kWPEditorViewControllerElementTagIndentBarButton
-													htmlProperty:@"indent"
-													   imageName:@"ZSSindent"
-														  target:self
-														selector:@selector(setIndent)
-											  accessibilityLabel:nil];
-	
-	return barButtonItem;
-}
-
-- (UIBarButtonItem*)insertImageBarButton
-{
-	NSString* accessibilityLabel = NSLocalizedString(@"Insert Image",
-													 @"Accessibility label for insert image button on formatting toolbar.");
-	
-	ZSSBarButtonItem *barButtonItem = [self barButtonItemWithTag:kWPEditorViewControllerElementTagInsertImageBarButton
-													htmlProperty:@"image"
-													   imageName:@"icon_format_media"
-														  target:self
-                                                        selector:@selector(didTouchMediaOptions:)
-											  accessibilityLabel:accessibilityLabel];
-	
-    
-	return barButtonItem;
-}
-
-- (UIBarButtonItem*)inserLinkBarButton
-{
-	NSString* accessibilityLabel = NSLocalizedString(@"Insert Link",
-													 @"Accessibility label for insert link button on formatting toolbar.");
-	
-	ZSSBarButtonItem *barButtonItem = [self barButtonItemWithTag:kWPEditorViewControllerElementTagInsertLinkBarButton
-													htmlProperty:@"link"
-													   imageName:@"icon_format_link"
-														  target:self
-														selector:@selector(linkBarButtonTapped:)
-											  accessibilityLabel:accessibilityLabel];
-	
-	return barButtonItem;
-}
-
-- (UIBarButtonItem*)italicBarButton
-{
-	NSString* accessibilityLabel = NSLocalizedString(@"Italic",
-													 @"Accessibility label for italic button on formatting toolbar.");
-	
-	ZSSBarButtonItem *barButtonItem = [self barButtonItemWithTag:kWPEditorViewControllerElementTagItalicBarButton
-													htmlProperty:@"italic"
-													   imageName:@"icon_format_italic"
-														  target:self
-														selector:@selector(setItalic)
-											  accessibilityLabel:accessibilityLabel];
-    
-    
-    
-    
-	return barButtonItem;
-}
-
-- (UIBarButtonItem*)orderedListBarButton
-{
-	NSString* accessibilityLabel = NSLocalizedString(@"Ordered List",
-													 @"Accessibility label for ordered list button on formatting toolbar.");
-	
-	ZSSBarButtonItem *barButtonItem = [self barButtonItemWithTag:kWPEditorViewControllerElementOrderedListBarButton
-													htmlProperty:@"orderedList"
-													   imageName:@"icon_format_ol"
-														  target:self
-														selector:@selector(setOrderedList)
-											  accessibilityLabel:accessibilityLabel];
-	
-	return barButtonItem;
-}
-
-- (UIBarButtonItem*)outdentBarButton
-{
-	ZSSBarButtonItem *barButtonItem = [self barButtonItemWithTag:kWPEditorViewControllerElementOutdentBarButton
-													htmlProperty:@"outdent"
-													   imageName:@"ZSSoutdent"
-														  target:self
-														selector:@selector(setOutdent)
-											  accessibilityLabel:nil];
-	
-	return barButtonItem;
-}
-
-- (UIBarButtonItem*)quickLinkBarButton
-{
-	ZSSBarButtonItem *barButtonItem = [self barButtonItemWithTag:kWPEditorViewControllerElementQuickLinkBarButton
-													htmlProperty:@"quickLink"
-													   imageName:@"ZSSquicklink"
-														  target:self
-														selector:@selector(quickLink)
-											  accessibilityLabel:nil];
-	
-	return barButtonItem;
-}
-
-- (UIBarButtonItem*)redoBarButton
-{
-	ZSSBarButtonItem *barButtonItem = [self barButtonItemWithTag:kWPEditorViewControllerElementRedoBarButton
-												  htmlProperty:@"redo"
-													 imageName:@"ZSSredo"
-														target:self
-														selector:@selector(redo:)
-											accessibilityLabel:nil];
-	
-	return barButtonItem;
-}
-
-- (UIBarButtonItem*)removeFormatBarButton
-{
-	ZSSBarButtonItem *barButtonItem = [self barButtonItemWithTag:kWPEditorViewControllerElementRemoveFormatBarButton
-													htmlProperty:@"removeFormat"
-													   imageName:@"ZSSclearstyle"
-														  target:self
-														selector:@selector(removeFormat)
-											  accessibilityLabel:nil];
-	
-	return barButtonItem;
-}
-
-- (UIBarButtonItem*)removeLinkBarButton
-{
-	NSString* accessibilityLabel = NSLocalizedString(@"Remove Link",
-													 @"Accessibility label for remove link button on formatting toolbar.");
-	
-	ZSSBarButtonItem *barButtonItem = [self barButtonItemWithTag:kWPEditorViewControllerElementRemoveFormatBarButton
-													htmlProperty:@"link"
-													   imageName:@"icon_format_unlink"
-														  target:self
-														selector:@selector(removeLink)
-											  accessibilityLabel:accessibilityLabel];
-	
-	return barButtonItem;
-}
-
-- (UIBarButtonItem*)showSourceBarButton
-{
-    NSString* accessibilityLabel = NSLocalizedString(@"HTML",
-                                                     @"Accessibility label for HTML button on formatting toolbar.");
-    
-    ZSSBarButtonItem *barButtonItem = [self barButtonItemWithTag:kWPEditorViewControllerElementShowSourceBarButton
-													htmlProperty:@"source"
-													   imageName:@"icon_format_html"
-														  target:self
-														selector:@selector(showHTMLSource:)
-											  accessibilityLabel:accessibilityLabel];
-	
-	return barButtonItem;
-}
-
-- (UIBarButtonItem*)strikeThroughBarButton
-{
-	NSString* accessibilityLabel = NSLocalizedString(@"Strike Through",
-													 @"Accessibility label for strikethrough button on formatting toolbar.");
-	
-	ZSSBarButtonItem *barButtonItem = [self barButtonItemWithTag:kWPEditorViewControllerElementStrikeThroughBarButton
-													htmlProperty:@"strikeThrough"
-													   imageName:@"icon_format_strikethrough"
-														  target:self
-														selector:@selector(setStrikethrough)
-											  accessibilityLabel:accessibilityLabel];
-	
-	return barButtonItem;
-}
-
-- (UIBarButtonItem*)subscriptBarButton
-{
-	ZSSBarButtonItem *barButtonItem = [self barButtonItemWithTag:kWPEditorViewControllerElementSubscriptBarButton
-													htmlProperty:@"subscript"
-													   imageName:@"ZSSsubscript"
-														  target:self
-														selector:@selector(setSubscript)
-											  accessibilityLabel:nil];
-	
-	return barButtonItem;
-}
-
-- (UIBarButtonItem*)superscriptBarButton
-{
-	ZSSBarButtonItem *barButtonItem = [self barButtonItemWithTag:kWPEditorViewControllerElementSuperscriptBarButton
-													htmlProperty:@"superscript"
-													   imageName:@"ZSSsuperscript"
-														  target:self
-														selector:@selector(setSuperscript)
-											  accessibilityLabel:nil];
-	
-	return barButtonItem;
-}
-
-- (UIBarButtonItem*)textColorBarButton
-{
-	ZSSBarButtonItem *barButtonItem = [self barButtonItemWithTag:kWPEditorViewControllerElementTextColorBarButton
-													htmlProperty:@"textColor"
-													   imageName:@"ZSStextcolor"
-														  target:self
-														selector:@selector(textColor)
-											  accessibilityLabel:nil];
-	
-	return barButtonItem;
-}
-
-- (UIBarButtonItem*)underlineBarButton
-{
-	NSString* accessibilityLabel = NSLocalizedString(@"Underline",
-													 @"Accessibility label for underline button on formatting toolbar.");
-	
-	ZSSBarButtonItem *barButtonItem = [self barButtonItemWithTag:kWPEditorViewControllerElementUnderlineBarButton
-													htmlProperty:@"underline"
-													   imageName:@"icon_format_underline@2x"
-														  target:self
-														selector:@selector(setUnderline)
-											  accessibilityLabel:accessibilityLabel];
-	
-	return barButtonItem;
-}
-
-- (UIBarButtonItem*)unorderedListBarButton
-{
-	NSString* accessibilityLabel = NSLocalizedString(@"Unordered List",
-													 @"Accessibility label for unordered list button on formatting toolbar.");
-	
-	ZSSBarButtonItem *barButtonItem = [self barButtonItemWithTag:kWPEditorViewControllerElementUnorderedListBarButton
-													htmlProperty:@"unorderedList"
-													   imageName:@"icon_format_ul@3x"
-														  target:self
-														selector:@selector(setUnorderedList)
-											  accessibilityLabel:accessibilityLabel];
-	
-	return barButtonItem;
-}
-
-- (UIBarButtonItem*)undoBarButton
-{
-	ZSSBarButtonItem *barButtonItem = [self barButtonItemWithTag:kWPEditorViewControllerElementUndoBarButton
-													htmlProperty:@"undo"
-													   imageName:@"ZSSundo@2x"
-														  target:self
-														selector:@selector(undo:)
-											  accessibilityLabel:nil];
-	
-	return barButtonItem;
-}
-- (UIBarButtonItem*)showMoreBarButton
-{
-    NSString* accessibilityLabel = NSLocalizedString(@"HTML",
-                                                     @"Accessibility label for More button on formatting toolbar.");
-    
-    ZSSBarButtonItem *barButtonItem = [self barButtonItemWithTag:kWPEditorViewControllerElementMoreBarButton
-                                                    htmlProperty:@"more"
-                                                       imageName:@"icon_more@3x"
-                                                          target:self
-                                                        selector:@selector(showMore)
-                                              accessibilityLabel:accessibilityLabel];
-    
-    return barButtonItem;
+- (UIColor *)placeholderColor {
+    if (!_placeholderColor) {
+        return [UIColor lightGrayColor];
+    }
+    return _placeholderColor;
 }
 
 #pragma mark - Builders
@@ -1032,7 +304,7 @@ NSInteger const WPLinkAlertViewTag = 92;
         _titlePlaceholderText = titlePlaceholderText;
         [self.editorView.titleField setPlaceholderText:_titlePlaceholderText];
         self.editorView.sourceViewTitleField.attributedPlaceholder = [[NSAttributedString alloc] initWithString:_titlePlaceholderText
-                                                                                                     attributes:@{NSForegroundColorAttributeName: [WPStyleGuide allTAllShadeGrey]}];
+                                                                                                     attributes:@{NSForegroundColorAttributeName: self.placeholderColor}];
     }
 }
 
@@ -1057,50 +329,31 @@ NSInteger const WPLinkAlertViewTag = 92;
 
 #pragma mark - Actions
 
--(void)imageSelectType:(int)type{
-    
-    
-    if ([self.delegate respondsToSelector: @selector(editorDidPressMedia:)]) {
-        [self.delegate editorDidPressMedia:type];
-    }
-    
-}
-
-- (void)didTouchMediaOptions:(WPEditorToolbarButton*)button
+- (void)didTouchMediaOptions
 {
     if (self.editorView.isInVisualMode) {
-        
-        if(!_imageselectController){
-            
-            _imageselectController = [[imageSelectController alloc] init];
-            _imageselectController.delegate = self;
-            
+        if ([self.delegate respondsToSelector: @selector(editorDidPressMedia:)]) {
+            [self.delegate editorDidPressMedia:self];
         }
-        
-        CGRect parentFrame = [button convertRect:button.frame toView:self.view];
-        
-        NSArray *data = _imageselectController.data;
-        
-        unsigned long height =  data.count*44;
-        
-        _wypopoverController = [[WYPopoverController alloc] initWithContentViewController:_imageselectController];
-        _wypopoverController.delegate = self;
-        _wypopoverController.popoverContentSize = CGSizeMake(200,height);
-        _wypopoverController.dismissOnTap = YES;
-        [_wypopoverController presentPopoverFromRect:parentFrame inView:self.view permittedArrowDirections:WYPopoverArrowDirectionDown animated:YES];
-        
-        
     } else {
         // Do not allow users to insert images in HTML mode for now
         __weak __typeof(self)weakSelf = self;
-        [UIAlertView showWithTitle:NSLocalizedString(@"Unable to insert image", @"Title of dialog notifing user they cannot insert an image in the editor's HTML mode.")
-                           message:NSLocalizedString(@"You cannot insert images while editing HTML directly. Please switch back to visual mode.", @"Body of dialog notifing user they cannot insert an image in the editor's HTML mode.")
-                 cancelButtonTitle:NSLocalizedString(@"OK", @"OK")
-                 otherButtonTitles:nil
-                          tapBlock:^(UIAlertView *alertView, NSInteger buttonIndex) {
-                              [weakSelf clearToolbar];
-                          }
-         ];
+        NSString *title = NSLocalizedString(@"Unable to insert image",
+                                            @"Title of dialog notifing user they cannot insert an image in the editor's HTML mode.");
+        NSString *message = NSLocalizedString(@"You cannot insert images while editing HTML directly. Please switch back to visual mode.",
+                                              @"Body of dialog notifing user they cannot insert an image in the editor's HTML mode.");
+        UIAlertController *alertController = [UIAlertController alertControllerWithTitle:title
+                                                                                 message:message
+                                                                          preferredStyle:UIAlertControllerStyleAlert];
+        
+        UIAlertAction* defaultAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"OK", @"Label text to dismiss an alert view.") style:UIAlertActionStyleDefault handler:^(UIAlertAction * action) {
+            [weakSelf clearToolbar];
+        }];
+        
+        [alertController addAction:defaultAction];
+        [self presentViewController:alertController
+                           animated:YES
+                         completion:nil];
     }
     [WPAnalytics track:WPAnalyticsStatEditorTappedImage];
 }
@@ -1154,10 +407,6 @@ NSInteger const WPLinkAlertViewTag = 92;
 - (void)restoreEditSelection
 {
     if (self.isEditing) {
-        if ([WPDeviceIdentification isiOSVersionEarlierThan8]){
-            [self.focusedField blur];
-            [self.focusedField focus];
-        }
         [self.editorView restoreSelection];
     }
 }
@@ -1168,9 +417,6 @@ NSInteger const WPLinkAlertViewTag = 92;
 - (void)saveEditSelection
 {
     if (self.isEditing) {
-        if ([WPDeviceIdentification isiOSVersionEarlierThan8]){
-            self.focusedField = self.editorView.focusedField;
-        }
         [self.editorView saveSelection];
     }
 }
@@ -1197,30 +443,80 @@ NSInteger const WPLinkAlertViewTag = 92;
 	[self tellOurDelegateEditingDidEnd];
 }
 
-#pragma mark - WPEditorToolbarViewDelegate
+#pragma mark - WPEditorFormatBarViewDelegate
 
-- (void)editorToolbarView:(WPEditorToolbarView *)editorToolbarView
+- (void)editorToolbarView:(WPEditorFormatbarView *)editorToolbarView
            showHTMLSource:(UIBarButtonItem *)barButtonItem
 {
     [self showHTMLSource:barButtonItem];
 }
 
+- (void)editorToolbarView:(WPEditorFormatbarView*)editorToolbarView
+              insertImage:(UIBarButtonItem *)barButtonItem
+{
+    [self didTouchMediaOptions];
+}
+
+- (void)editorToolbarView:(WPEditorFormatbarView*)editorToolbarView
+                  setBold:(UIBarButtonItem *)barButtonItem
+{
+    [self setBold];
+}
+
+- (void)editorToolbarView:(WPEditorFormatbarView*)editorToolbarView
+                setItalic:(UIBarButtonItem *)barButtonItem
+{
+    [self setItalic];
+}
+
+- (void)editorToolbarView:(WPEditorFormatbarView*)editorToolbarView
+            setBlockquote:(UIBarButtonItem *)barButtonItem
+{
+    [self setBlockQuote];
+}
+
+- (void)editorToolbarView:(WPEditorFormatbarView*)editorToolbarView
+         setUnorderedList:(UIBarButtonItem *)barButtonItem
+{
+    [self setUnorderedList];
+}
+
+- (void)editorToolbarView:(WPEditorFormatbarView*)editorToolbarView
+           setOrderedList:(UIBarButtonItem *)barButtonItem
+{
+    [self setOrderedList];
+}
+
+- (void)editorToolbarView:(WPEditorFormatbarView*)editorToolbarView
+           setStrikeThrough:(UIBarButtonItem *)barButtonItem
+{
+    [self setStrikethrough];
+}
+
+- (void)editorToolbarView:(WPEditorFormatbarView*)editorToolbarView
+               insertLink:(UIBarButtonItem *)barButtonItem
+{
+    [self linkBarButtonTapped];
+}
+
 #pragma mark - Editor Interaction
 
 - (void)showHTMLSource:(UIBarButtonItem *)barButtonItem
-{	
+{
     if ([self.editorView isInVisualMode]) {
         if ([self askOurDelegateShouldDisplaySourceView]) {
             [self.editorView showHTMLSource];
-            barButtonItem.tintColor = [self barButtonItemSelectedDefaultColor];
+            [self.toolbarView toolBarItemWithTag:kWPEditorViewControllerElementShowSourceBarButton
+                                     setSelected:YES];
         } else {
             // Deselect the HTML button so it is in the proper state
-            [(UIButton *)barButtonItem setSelected:NO];
+            [self.toolbarView toolBarItemWithTag:kWPEditorViewControllerElementShowSourceBarButton
+                                     setSelected:NO];
         }
     } else {
 		[self.editorView showVisualEditor];
-		
-        barButtonItem.tintColor = [self.toolbarView itemTintColor];
+        [self.toolbarView toolBarItemWithTag:kWPEditorViewControllerElementShowSourceBarButton
+                                 setSelected:NO];
     }
     
     [WPAnalytics track:WPAnalyticsStatEditorTappedHTML];
@@ -1396,7 +692,7 @@ NSInteger const WPLinkAlertViewTag = 92;
     [self.editorView redo];
 }
 
-- (void)linkBarButtonTapped:(WPEditorToolbarButton*)button
+- (void)linkBarButtonTapped
 {
 	if ([self.editorView isSelectionALink]) {
 		[self removeLink];
@@ -1410,94 +706,106 @@ NSInteger const WPLinkAlertViewTag = 92;
 - (void)showInsertLinkDialogWithLink:(NSString*)url
 							   title:(NSString*)title
 {
-    
-	BOOL isInsertingNewLink = (url == nil);
-	
-	if (!url) {
-		NSURL* pasteboardUrl = [self urlFromPasteboard];
-		
-		url = [pasteboardUrl absoluteString];
-	}
-	
-	NSString *insertButtonTitle = isInsertingNewLink ? NSLocalizedString(@"Insert", nil) : NSLocalizedString(@"Update", nil);
-	NSString *removeButtonTitle = isInsertingNewLink ? nil : NSLocalizedString(@"Remove Link", nil);
-	
-	self.alertView = [[UIAlertView alloc] initWithTitle:insertButtonTitle
-												message:nil
-											   delegate:self
-									  cancelButtonTitle:NSLocalizedString(@"Cancel", nil)
-									  otherButtonTitles:insertButtonTitle, removeButtonTitle, nil];
-	
-	// The reason why we're setting a login & password style, is that it's the only style that
-	// supports having two edit fields.  We'll customize the password field to behave as we want.
-	//
-    self.alertView.alertViewStyle = UIAlertViewStyleLoginAndPasswordInput;
-    self.alertView.tag = WPLinkAlertViewTag;
-	
-	UITextField *linkURL = [self.alertView textFieldAtIndex:0];
-	
-	linkURL.clearButtonMode = UITextFieldViewModeAlways;
-	linkURL.placeholder = NSLocalizedString(@"URL", nil);
-	
-    if (url) {
-        linkURL.text = url;
-    }
-	
-	UITextField *linkNameTextField = [self.alertView textFieldAtIndex:1];
-	
-	linkNameTextField.clearButtonMode = UITextFieldViewModeAlways;
-	linkNameTextField.placeholder = NSLocalizedString(@"Link Name", nil);
-	linkNameTextField.secureTextEntry = NO;
-	linkNameTextField.autocapitalizationType = UITextAutocapitalizationTypeSentences;
-	linkNameTextField.autocorrectionType = UITextAutocorrectionTypeDefault;
-	linkNameTextField.spellCheckingType = UITextSpellCheckingTypeDefault;
-	
-	if (title) {
-		linkNameTextField.text = title;
-	}
-	
     __weak __typeof(self) weakSelf = self;
-
-    self.alertView.willPresentBlock = ^(UIAlertView* alertView) {
-        
-        [weakSelf.editorView saveSelection];
-        [weakSelf.editorView endEditing];
-    };
-	
-	self.alertView.didDismissBlock = ^(UIAlertView *alertView, NSInteger buttonIndex) {
-		[weakSelf.editorView restoreSelection];
-		
-		if (alertView.tag == WPLinkAlertViewTag) {
-			if (buttonIndex == 1) {
-				NSString *linkURL = [alertView textFieldAtIndex:0].text;
-				NSString *linkTitle = [alertView textFieldAtIndex:1].text;
-                
-				if ([linkTitle length] == 0) {
-					linkTitle = linkURL;
-				}
-                
-				if (isInsertingNewLink) {
-					[weakSelf insertLink:linkURL title:linkTitle];
-				} else {
-					[weakSelf updateLink:linkURL title:linkTitle];
-				}
-			} else if (buttonIndex == 2) {
-				[weakSelf removeLink];
-			}
-		}
-    };
-	
-    self.alertView.shouldEnableFirstOtherButtonBlock = ^BOOL(UIAlertView *alertView) {
-		if (alertView.tag == WPLinkAlertViewTag) {
-            UITextField *textField = [alertView textFieldAtIndex:0];
-            if ([textField.text length] == 0) {
-                return NO;
-            }
-        }
-        return YES;
-    };
+    BOOL isInsertingNewLink = (url == nil);
     
-    [self.alertView show];
+    if (!url) {
+        NSURL* pasteboardUrl = [self urlFromPasteboard];
+        url = [pasteboardUrl absoluteString];
+    }
+    
+    NSString *insertButtonTitle = isInsertingNewLink ? NSLocalizedString(@"Insert", nil) : NSLocalizedString(@"Update", nil);
+    NSString *removeButtonTitle = NSLocalizedString(@"Remove Link", nil);
+    NSString *cancelButtonTitle = NSLocalizedString(@"Cancel", @"Cancel button");
+    
+    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:insertButtonTitle
+                                                                             message:nil
+                                                                      preferredStyle:UIAlertControllerStyleAlert];
+    
+    [alertController addTextFieldWithConfigurationHandler:^(UITextField *textField) {
+        textField.clearButtonMode = UITextFieldViewModeAlways;
+        textField.placeholder = NSLocalizedString(@"URL", @"URL text field placeholder");
+        
+        if (url) {
+            textField.text = url;
+        }
+        
+        [textField addTarget:weakSelf
+                      action:@selector(alertTextFieldDidChange:)
+            forControlEvents:UIControlEventEditingChanged];
+    }];
+    
+    [alertController addTextFieldWithConfigurationHandler:^(UITextField *textField) {
+        textField.clearButtonMode = UITextFieldViewModeAlways;
+        textField.placeholder = NSLocalizedString(@"Link Name", @"Link name field placeholder");
+        textField.secureTextEntry = NO;
+        textField.autocapitalizationType = UITextAutocapitalizationTypeSentences;
+        textField.autocorrectionType = UITextAutocorrectionTypeDefault;
+        textField.spellCheckingType = UITextSpellCheckingTypeDefault;
+        
+        if (title) {
+            textField.text = title;
+        }
+    }];
+    
+    UIAlertAction* insertAction = [UIAlertAction actionWithTitle:insertButtonTitle
+                                                           style:UIAlertActionStyleDefault
+                                                         handler:^(UIAlertAction * action) {
+                                                             [weakSelf.editorView restoreSelection];
+                                                             
+                                                             NSString *linkURL = alertController.textFields.firstObject.text;
+                                                             NSString *linkTitle = alertController.textFields.lastObject.text;
+                                                             
+                                                             if ([linkTitle length] == 0) {
+                                                                 linkTitle = linkURL;
+                                                             }
+                                                             
+                                                             if (isInsertingNewLink) {
+                                                                 [weakSelf insertLink:linkURL title:linkTitle];
+                                                             } else {
+                                                                 [weakSelf updateLink:linkURL title:linkTitle];
+                                                             }
+                                                         }];
+    
+    UIAlertAction* removeAction = [UIAlertAction actionWithTitle:removeButtonTitle
+                                                           style:UIAlertActionStyleDestructive
+                                                         handler:^(UIAlertAction * action) {
+                                                             [weakSelf.editorView restoreSelection];
+                                                             [weakSelf removeLink];
+                                                         }];
+    
+    UIAlertAction* cancelAction = [UIAlertAction actionWithTitle:cancelButtonTitle
+                                                           style:UIAlertActionStyleCancel
+                                                         handler:^(UIAlertAction * action) {
+                                                             [weakSelf.editorView restoreSelection];
+                                                         }];
+    
+    [alertController addAction:insertAction];
+    if (!isInsertingNewLink) {
+        [alertController addAction:removeAction];
+    }
+    [alertController addAction:cancelAction];
+    
+    // Disabled until url is entered into field
+    UITextField *urlField = alertController.textFields.firstObject;
+    insertAction.enabled = urlField.text.length > 0;
+    
+    [self.editorView saveSelection];
+    [self.editorView endEditing];
+    [self presentViewController:alertController
+                       animated:YES
+                     completion:nil];
+}
+
+- (void)alertTextFieldDidChange:(UITextField *)sender
+{
+    UIAlertController *alertController = (UIAlertController *)self.presentedViewController;
+    if (alertController)
+    {
+        UITextField *urlField = alertController.textFields.firstObject;
+        UIAlertAction *insertAction = alertController.actions.firstObject;
+        insertAction.enabled = urlField.text.length > 0;
+    }
 }
 
 - (void)insertLink:(NSString *)url
@@ -1510,11 +818,6 @@ NSInteger const WPLinkAlertViewTag = 92;
 			 title:(NSString*)title
 {
 	[self.editorView updateLink:url title:title];
-}
-
-- (void)dismissAlertView
-{
-    [self.alertView dismissWithClickedButtonIndex:self.alertView.cancelButtonIndex animated:YES];
 }
 
 - (void)removeLink
@@ -1536,19 +839,6 @@ NSInteger const WPLinkAlertViewTag = 92;
 - (void)updateImage:(NSString *)url alt:(NSString *)alt
 {
     [self.editorView updateImage:url alt:alt];
-}
--(void)showMore{
-
-//    moreItmsController *moreitmsController = [[moreItmsController alloc] init];
-//    moreitmsController.delegate = self;
-//    [self presentViewController:moreitmsController animated:YES completion:^(){}];
-    
-}
--(void)reloadUserSettingItems{
-
-    _toolbarView.enabledToolbarItems = [_toolbarView defaultToolbarItems];
-    _toolbarView.items = [self itemsForToolbar];
-    [_toolbarView reloadItems];
 }
 
 #pragma mark - UIPasteboard interaction
@@ -1659,17 +949,17 @@ NSInteger const WPLinkAlertViewTag = 92;
         
         [field setRightToLeftTextEnabled:[self isCurrentLanguageDirectionRTL]];
         [field setMultiline:NO];
-        [field setPlaceholderColor:[WPStyleGuide allTAllShadeGrey]];
+        [field setPlaceholderColor:self.placeholderColor];
         [field setPlaceholderText:self.titlePlaceholderText];
         self.editorView.sourceViewTitleField.attributedPlaceholder = [[NSAttributedString alloc] initWithString:self.titlePlaceholderText
-                                                                                                     attributes:@{NSForegroundColorAttributeName: [WPStyleGuide allTAllShadeGrey]}];
+                                                                                                     attributes:@{NSForegroundColorAttributeName: self.placeholderColor}];
     } else if (field == self.editorView.contentField) {
         field.inputAccessoryView = self.toolbarView;
         
         [field setRightToLeftTextEnabled:[self isCurrentLanguageDirectionRTL]];
         [field setMultiline:YES];
         [field setPlaceholderText:self.bodyPlaceholderText];
-        [field setPlaceholderColor:[WPStyleGuide allTAllShadeGrey]];
+        [field setPlaceholderColor:self.placeholderColor];
     }
     
     if ([self.delegate respondsToSelector:@selector(editorViewController:fieldCreated:)]) {
@@ -1680,10 +970,13 @@ NSInteger const WPLinkAlertViewTag = 92;
 - (void)editorView:(WPEditorView*)editorView
       fieldFocused:(WPEditorField*)field
 {
+    [self.toolbarView enableToolbarItems:NO shouldShowSourceButton:YES];
     if (field == self.editorView.titleField) {
+        self.editingTitle = YES;
         [self.toolbarView enableToolbarItems:NO shouldShowSourceButton:YES];
         [self tellOurDelegateFormatBarStatusHasChanged:NO];
-    } else if (field == self.editorView.contentField) {
+    } else {
+        self.editingTitle = NO;
         [self.toolbarView enableToolbarItems:YES shouldShowSourceButton:YES];
         [self tellOurDelegateFormatBarStatusHasChanged:YES];
     }
@@ -1691,13 +984,12 @@ NSInteger const WPLinkAlertViewTag = 92;
 
 - (void)editorView:(WPEditorView*)editorView sourceFieldFocused:(UIView*)view
 {
-    [self.toolbarView enableToolbarItems:NO shouldShowSourceButton:YES];
-    
-    // Enable the toolbar if the HTML editor has focus
-    if (view == self.editorView.sourceView) {
-        [self.toolbarView enableToolbarItems:YES shouldShowSourceButton:YES];
-    } else {
+    if (view == self.editorView.sourceViewTitleField) {
+        self.editingTitle = YES;
         [self.toolbarView enableToolbarItems:NO shouldShowSourceButton:YES];
+    } else {
+        self.editingTitle = NO;
+        [self.toolbarView enableToolbarItems:YES shouldShowSourceButton:YES];
     }
 }
 
@@ -1711,6 +1003,7 @@ NSInteger const WPLinkAlertViewTag = 92;
 	} else {
 		[[UIApplication sharedApplication] openURL:url];
 	}
+	
 	return YES;
 }
 
@@ -1778,8 +1071,14 @@ NSInteger const WPLinkAlertViewTag = 92;
 - (void)editorView:(WPEditorView*)editorView stylesForCurrentSelection:(NSArray*)styles
 {
     self.editorItemsEnabled = styles;
-	
 	[self.toolbarView selectToolbarItemsForStyles:styles];
+}
+
+- (void)editorView:(WPEditorView *)editorView imagePasted:(UIImage *)image
+{
+    if ([self.delegate respondsToSelector:@selector(editorViewController:imagePasted:)]) {
+        [self.delegate editorViewController:self imagePasted:image];
+    }
 }
 
 
@@ -1809,21 +1108,42 @@ didFailLoadWithError:(NSError *)error
 
 #pragma mark - Utilities
 
+- (void)recoverFromViewSizeChange
+{
+    // This hack forces the input accessory view to refresh itself and resize properly.
+    if (self.isFirstSetupComplete) {
+        if ([self.editorView isInVisualMode]) {
+            WPEditorField *field = [self.editorView focusedField];
+            [self.editorView saveSelection];
+            [field blur];
+            [field focus];
+            [self.editorView restoreSelection];
+        } else {
+            if ([[self.editorView sourceViewTitleField] isFirstResponder]) {
+                [[self.editorView sourceViewTitleField] resignFirstResponder];
+                [[self.editorView sourceViewTitleField] becomeFirstResponder];
+            } else {
+                [[self.editorView sourceView] resignFirstResponder];
+                [[self.editorView sourceView] becomeFirstResponder];
+            }
+        }
+    }
+}
+
 - (UIColor *)barButtonItemDefaultColor
 {
     if (self.toolbarView.itemTintColor) {
         return self.toolbarView.itemTintColor;
     }
-    
-    return [WPStyleGuide allTAllShadeGrey];
+    return [UIColor grayColor];
 }
 
 - (UIColor *)barButtonItemSelectedDefaultColor
 {
     if (self.toolbarView.selectedItemTintColor) {
         return self.toolbarView.selectedItemTintColor;
-    }
-    return [WPStyleGuide wordPressBlue];
+    }    
+    return [UIColor blueColor];;
 }
 
 - (BOOL)isCurrentLanguageDirectionRTL

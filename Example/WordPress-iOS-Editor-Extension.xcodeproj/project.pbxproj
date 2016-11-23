@@ -14,6 +14,8 @@
 		0C62BE021DD55F40008165E4 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0C62BE011DD55F40008165E4 /* Assets.xcassets */; };
 		0C62BE051DD55F40008165E4 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0C62BE031DD55F40008165E4 /* LaunchScreen.storyboard */; };
 		4797ADAF90B55C7AFD0BED1E /* Pods_WordPress_iOS_Editor_Extension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 543155223E14AC637D73A7ED /* Pods_WordPress_iOS_Editor_Extension.framework */; };
+		BE51DE8C1DE5258C00212F3E /* WPImageMetaViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = BE51DE881DE5258C00212F3E /* WPImageMetaViewController.m */; };
+		BE51DE8F1DE52C3900212F3E /* content.html in Resources */ = {isa = PBXBuildFile; fileRef = BE51DE8E1DE52C3900212F3E /* content.html */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -29,6 +31,9 @@
 		0C62BE061DD55F40008165E4 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		5279BE5A95384A7FAA1F5187 /* Pods-WordPress-iOS-Editor-Extension.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WordPress-iOS-Editor-Extension.debug.xcconfig"; path = "Pods/Target Support Files/Pods-WordPress-iOS-Editor-Extension/Pods-WordPress-iOS-Editor-Extension.debug.xcconfig"; sourceTree = "<group>"; };
 		543155223E14AC637D73A7ED /* Pods_WordPress_iOS_Editor_Extension.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_WordPress_iOS_Editor_Extension.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		BE51DE871DE5258C00212F3E /* WPImageMetaViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WPImageMetaViewController.h; sourceTree = "<group>"; };
+		BE51DE881DE5258C00212F3E /* WPImageMetaViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WPImageMetaViewController.m; sourceTree = "<group>"; };
+		BE51DE8E1DE52C3900212F3E /* content.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = content.html; sourceTree = "<group>"; };
 		EC2615B8ED1E07022BCEAB7F /* Pods-WordPress-iOS-Editor-Extension.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WordPress-iOS-Editor-Extension.release.xcconfig"; path = "Pods/Target Support Files/Pods-WordPress-iOS-Editor-Extension/Pods-WordPress-iOS-Editor-Extension.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -67,8 +72,11 @@
 			children = (
 				0C62BDF81DD55F3F008165E4 /* AppDelegate.h */,
 				0C62BDF91DD55F3F008165E4 /* AppDelegate.m */,
+				BE51DE8E1DE52C3900212F3E /* content.html */,
 				0C62BDFB1DD55F40008165E4 /* ViewController.h */,
 				0C62BDFC1DD55F40008165E4 /* ViewController.m */,
+				BE51DE871DE5258C00212F3E /* WPImageMetaViewController.h */,
+				BE51DE881DE5258C00212F3E /* WPImageMetaViewController.m */,
 				0C62BDFE1DD55F40008165E4 /* Main.storyboard */,
 				0C62BE011DD55F40008165E4 /* Assets.xcassets */,
 				0C62BE031DD55F40008165E4 /* LaunchScreen.storyboard */,
@@ -110,12 +118,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 0C62BE091DD55F40008165E4 /* Build configuration list for PBXNativeTarget "WordPress-iOS-Editor-Extension" */;
 			buildPhases = (
-				79220254BF6D0AFA2F650364 /* 📦 Check Pods Manifest.lock */,
+				79220254BF6D0AFA2F650364 /* [CP] Check Pods Manifest.lock */,
 				0C62BDEE1DD55F3E008165E4 /* Sources */,
 				0C62BDEF1DD55F3E008165E4 /* Frameworks */,
 				0C62BDF01DD55F3E008165E4 /* Resources */,
-				6A5CAB9A72F3871D52064B6A /* 📦 Embed Pods Frameworks */,
-				CE5F4551B044F663274EB84F /* 📦 Copy Pods Resources */,
+				6A5CAB9A72F3871D52064B6A /* [CP] Embed Pods Frameworks */,
+				CE5F4551B044F663274EB84F /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -166,6 +174,7 @@
 			files = (
 				0C62BE051DD55F40008165E4 /* LaunchScreen.storyboard in Resources */,
 				0C62BE021DD55F40008165E4 /* Assets.xcassets in Resources */,
+				BE51DE8F1DE52C3900212F3E /* content.html in Resources */,
 				0C62BE001DD55F40008165E4 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -173,14 +182,14 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		6A5CAB9A72F3871D52064B6A /* 📦 Embed Pods Frameworks */ = {
+		6A5CAB9A72F3871D52064B6A /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "📦 Embed Pods Frameworks";
+			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -188,29 +197,29 @@
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-WordPress-iOS-Editor-Extension/Pods-WordPress-iOS-Editor-Extension-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		79220254BF6D0AFA2F650364 /* 📦 Check Pods Manifest.lock */ = {
+		79220254BF6D0AFA2F650364 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "📦 Check Pods Manifest.lock";
+			name = "[CP] Check Pods Manifest.lock";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
+			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
 			showEnvVarsInLog = 0;
 		};
-		CE5F4551B044F663274EB84F /* 📦 Copy Pods Resources */ = {
+		CE5F4551B044F663274EB84F /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "📦 Copy Pods Resources";
+			name = "[CP] Copy Pods Resources";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -227,6 +236,7 @@
 			files = (
 				0C62BDFD1DD55F40008165E4 /* ViewController.m in Sources */,
 				0C62BDFA1DD55F3F008165E4 /* AppDelegate.m in Sources */,
+				BE51DE8C1DE5258C00212F3E /* WPImageMetaViewController.m in Sources */,
 				0C62BDF71DD55F3F008165E4 /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

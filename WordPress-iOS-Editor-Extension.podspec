@@ -55,5 +55,6 @@ Pod::Spec.new do |s|
   s.dependency 'NSObject-SafeExpectations', '~> 0.0.2'
   s.dependency 'WYPopoverController', '~> 0.3.9'
   s.dependency 'UIAlertView+Blocks', '~> 0.9.0'
+  s.dependency 'Qiniu', '~> 7.1.4'
 
 end
