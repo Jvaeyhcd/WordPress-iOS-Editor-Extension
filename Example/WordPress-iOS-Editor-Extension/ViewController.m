@@ -120,23 +120,23 @@
 
 - (void)editorDidPressMedia:(WPEditorViewController *)editorController
 {
-//    DDLogInfo(@"Pressed Media!");
+    NSLog(@"Pressed Media!");
     [self showPhotoPicker];
 }
 
 - (void)editorTitleDidChange:(WPEditorViewController *)editorController
 {
-//    DDLogInfo(@"Editor title did change: %@", self.titleText);
+    NSLog(@"Editor title did change: %@", self.titleText);
 }
 
 - (void)editorTextDidChange:(WPEditorViewController *)editorController
 {
-//    DDLogInfo(@"Editor body text changed: %@", self.bodyText);
+    NSLog(@"Editor body text changed: %@", self.bodyText);
 }
 
 - (void)editorViewController:(WPEditorViewController *)editorViewController fieldCreated:(WPEditorField*)field
 {
-//    DDLogInfo(@"Editor field created: %@", field.nodeId);
+    NSLog(@"Editor field created: %@", field.nodeId);
 }
 
 - (void)editorViewController:(WPEditorViewController*)editorViewController

@@ -503,4 +503,7 @@ stylesForCurrentSelection:(NSArray*)styles;
 - (void)heading6;
 - (void)removeFormat;
 
+- (NSString *)getCoverImage;
+- (NSArray *)getAllImage;
+
 @end
