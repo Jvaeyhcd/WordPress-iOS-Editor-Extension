@@ -18,14 +18,16 @@
 #import "WPEditorView.h"
 #import "WPImageMetaViewController.h"
 #import <Qiniu/QiniuSDK.h>
+#import "WPEditorToolbarView.h"
 
-@interface ViewController ()<UINavigationControllerDelegate, UIImagePickerControllerDelegate, WPImageMetaViewControllerDelegate>
+@interface ViewController ()<UINavigationControllerDelegate, UIImagePickerControllerDelegate, WPImageMetaViewControllerDelegate, WPEditorViewDelegate, WPEditorToolbarViewDelegate>
 @property(nonatomic, strong) NSMutableDictionary *mediaAdded;
 @property(nonatomic, strong) NSString *selectedMediaID;
 @property(nonatomic, strong) NSCache *videoPressCache;
 @property(nonatomic ,assign) float uploadPercent;
 @property(nonatomic, strong) NSString *uploadFileName;
 @property(nonatomic, strong) NSString *fileRootPath;
+@property(nonatomic, strong) WPEditorToolbarView *hcdToolbarView;
 @end
 
 @implementation ViewController
@@ -52,6 +54,16 @@
     
     self.mediaAdded = [NSMutableDictionary dictionary];
     self.videoPressCache = [[NSCache alloc] init];
+    
+    self.hcdToolbarView = [[WPEditorToolbarView alloc]initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, 44)];
+    self.hcdToolbarView.delegate = self;
+    self.hcdToolbarView.backgroundColor = [UIColor colorWithRed:247 / 255.0 green:247 / 255.0 blue:247 / 255.0 alpha:1.0];
+    self.hcdToolbarView.itemTintColor = [UIColor colorWithRed:135 / 255.0 green:135 / 255.0 blue:135 / 255.0 alpha:1.0];
+    self.hcdToolbarView.selectedBBsCategory = @"请选择分类请选择分类请选择分类请选择分类";
+    self.toolbarView.hidden = YES;
+    
+    self.editorView.sourceView.inputAccessoryView = self.hcdToolbarView;
+    self.editorView.delegate = self;
 }
 
 - (void)customizeAppearance
@@ -63,6 +75,8 @@
     [WPFontManager merriweatherLightFontOfSize:16.0];
     [WPFontManager merriweatherRegularFontOfSize:16.0];
     
+    self.titlePlaceholderText = @"请输入标题";
+    self.bodyPlaceholderText = @"请输入内容";
     self.placeholderColor = [WPStyleGuide grey];
     self.editorView.sourceViewTitleField.font = [WPFontManager merriweatherBoldFontOfSize:24.0];
     self.editorView.sourceContentDividerView.backgroundColor = [UIColor colorWithRed:233 / 256.0 green:239 / 256.0 blue:243 / 256.0 alpha:1.0];
@@ -73,6 +87,7 @@
     // Explicit design decision to use non-standard colors. See:
     // https://github.com/wordpress-mobile/WordPress-Editor-iOS/issues/657#issuecomment-113651034
     [self.toolbarView setBackgroundColor: [UIColor colorWithRed:0xF9/255.0 green:0xFB/255.0 blue:0xFC/255.0 alpha:1]];
+    
 }
 
 #pragma mark - Navigation Bar
@@ -583,6 +598,60 @@
 - (void)imageMetaViewController:(WPImageMetaViewController *)controller didFinishEditingImageMeta:(WPImageMeta *)imageMeta
 {
     [self.editorView updateCurrentImageMeta:imageMeta];
+}
+
+- (void)editorView:(WPEditorView*)editorView
+      fieldCreated:(WPEditorField*)field
+{
+    if (field == self.editorView.titleField) {
+        field.inputAccessoryView = self.hcdToolbarView;
+        
+        [field setMultiline:NO];
+        [field setPlaceholderColor:self.placeholderColor];
+        [field setPlaceholderText:self.titlePlaceholderText];
+        self.editorView.sourceViewTitleField.attributedPlaceholder = [[NSAttributedString alloc] initWithString:self.titlePlaceholderText
+                                                                                                     attributes:@{NSForegroundColorAttributeName: self.placeholderColor}];
+    } else if (field == self.editorView.contentField) {
+        field.inputAccessoryView = self.hcdToolbarView;
+        
+        [field setMultiline:YES];
+        [field setPlaceholderText:self.bodyPlaceholderText];
+        [field setPlaceholderColor:self.placeholderColor];
+    }
+    
+    if ([self.delegate respondsToSelector:@selector(editorViewController:fieldCreated:)]) {
+        [self.delegate editorViewController:self fieldCreated:field];
+    }
+}
+
+- (void)editorView:(WPEditorView*)editorView
+      fieldFocused:(WPEditorField*)field
+{
+    
+}
+
+- (void)editorView:(WPEditorView*)editorView sourceFieldFocused:(UIView*)view
+{
+    
+}
+
+#pragma mark - WPEditorToolbarViewDelegate
+
+- (void)insertLibaryPhotoImage
+{
+    if (self.editorView.isInVisualMode) {
+        [self showPhotoPicker];
+    }
+}
+
+- (void)insterCameraPhotoImage
+{
+
+}
+
+- (void)selectBBSCategory
+{
+
 }
 
 @end
