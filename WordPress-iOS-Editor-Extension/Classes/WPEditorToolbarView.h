@@ -30,4 +30,6 @@
 
 @property (nonatomic, copy) NSString *selectedBBsCategory;
 
+- (void)setToolBarEnable:(BOOL)enable;
+
 @end

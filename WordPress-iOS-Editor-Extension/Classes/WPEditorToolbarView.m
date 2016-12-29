@@ -140,4 +140,10 @@
     }
 }
 
+- (void)setToolBarEnable:(BOOL)enable
+{
+    self.imageBtn.enabled = enable;
+    self.cameraBtn.enabled = enable;
+}
+
 @end

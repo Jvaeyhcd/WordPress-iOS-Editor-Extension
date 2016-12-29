@@ -16,7 +16,7 @@ Pod::Spec.new do |s|
   #
 
   s.name         = "WordPress-iOS-Editor-Extension"
-  s.version      = "0.0.8"
+  s.version      = "0.0.9"
   s.summary      = "Reusable component rich text editor for WordPress.com in an iOS application."
 
   # This description is used to generate tags and improve search results.

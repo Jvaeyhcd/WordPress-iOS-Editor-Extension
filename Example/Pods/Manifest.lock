@@ -28,7 +28,7 @@ PODS:
     - AFNetworking (~> 3)
     - HappyDNS (~> 0.3)
   - UIAlertView+Blocks (0.9)
-  - WordPress-iOS-Editor-Extension (0.0.6):
+  - WordPress-iOS-Editor-Extension (0.0.9):
     - NSObject-SafeExpectations (~> 0.0.2)
     - Qiniu (~> 7.1.4)
     - UIAlertView+Blocks (~> 0.9.0)
@@ -54,7 +54,7 @@ SPEC CHECKSUMS:
   NSObject-SafeExpectations: 7d7f48df90df4e11da7cfe86b64f45eff7a7f521
   Qiniu: a4c962782035ee25b9da3e195181d8c384bb75be
   UIAlertView+Blocks: a46c99c5144f6c5dbc7d62fd2a0678daceec89a3
-  WordPress-iOS-Editor-Extension: 54db19f3e53f7c3e81a86bdac1b58b78d09fbadb
+  WordPress-iOS-Editor-Extension: 447712cef08a319d405e05af8c3886c2b7380650
   WordPress-iOS-Shared: 50a7bd7056b8721e86c3cbe167eab49ef85ec07b
   WordPressCom-Analytics-iOS: a92d9b1e75c14db406b203c7101d20557fabb9c0
   WYPopoverController: a9db25ac2841a686acdc0f3a99bdb21545db32f4
