@@ -910,17 +910,17 @@
 
 #pragma mark - WPEditorViewDelegate
 
-- (void)editorTextDidChange:(WPEditorView*)editorView
+- (void)editorViewTextDidChange:(WPEditorView*)editorView
 {
-	if ([self.delegate respondsToSelector: @selector(editorTextDidChange:)]) {
-		[self.delegate editorTextDidChange:self];
+	if ([self.delegate respondsToSelector: @selector(editorViewTextDidChange:)]) {
+		[self.delegate editorViewTextDidChange:self];
 	}
 }
 
-- (void)editorTitleDidChange:(WPEditorView *)editorView
+- (void)editorViewTitleDidChange:(WPEditorView *)editorView
 {
-    if ([self.delegate respondsToSelector: @selector(editorTitleDidChange:)]) {
-        [self.delegate editorTitleDidChange:self];
+    if ([self.delegate respondsToSelector: @selector(editorViewTitleDidChange:)]) {
+        [self.delegate editorViewTitleDidChange:self];
     }
 }
 
