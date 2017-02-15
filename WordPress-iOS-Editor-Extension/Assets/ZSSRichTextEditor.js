@@ -2504,7 +2504,8 @@ ZSSField.prototype.handleTapEvent = function(e) {
             
             // Format and flag the image as selected.
             ZSSEditor.currentEditingImage = targetNode;
-            ZSSEditor.applyImageSelectionFormatting( targetNode );
+            // 注释掉选中图片时的编辑图标
+//            ZSSEditor.applyImageSelectionFormatting( targetNode );
             
             return;
         }
