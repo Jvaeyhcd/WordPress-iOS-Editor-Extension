@@ -756,7 +756,7 @@ ZSSEditor.updateImage = function(url, alt) {
 };
 
 ZSSEditor.insertImage = function(url, alt) {
-    var html = '<img src="'+url+'" alt="'+alt+'" />';
+    var html = '<img src="'+url+'" data-src="'+url+'" alt="'+alt+'" />';
     
     this.insertHTML(html);
     this.sendEnabledStyles();
