@@ -748,7 +748,7 @@ ZSSEditor.updateImage = function(url, alt) {
     
     if (ZSSEditor.currentEditingImage) {
         var c = ZSSEditor.currentEditingImage;
-        c.attr('data-src', url);
+        c.attr('src', url);
         c.attr('alt', alt);
     }
     ZSSEditor.sendEnabledStyles();
@@ -756,7 +756,7 @@ ZSSEditor.updateImage = function(url, alt) {
 };
 
 ZSSEditor.insertImage = function(url, alt) {
-    var html = '<img data-src="'+url+'" alt="'+alt+'" />';
+    var html = '<img src="'+url+'" alt="'+alt+'" />';
     
     this.insertHTML(html);
     this.sendEnabledStyles();
@@ -849,8 +849,7 @@ ZSSEditor.replaceLocalImageWithRemoteImage = function(imageNodeIdentifier, remot
     var image = new Image;
     
     image.onload = function () {
-//        imageNode.attr('src', '');
-        imageNode.attr('data-src', image.src);
+        imageNode.attr('src', image.src);
         ZSSEditor.markImageUploadDone(imageNodeIdentifier);
     }
     
@@ -858,8 +857,7 @@ ZSSEditor.replaceLocalImageWithRemoteImage = function(imageNodeIdentifier, remot
         // Even on an error, we swap the image for the time being.  This is because private
         // blogs are currently failing to download images due to access privilege issues.
         //
-//        imageNode.attr('src', '');
-        imageNode.attr('data-src', image.src);
+        imageNode.attr('src', image.src);
         ZSSEditor.markImageUploadDone(imageNodeIdentifier);
     }
     
@@ -2507,7 +2505,7 @@ ZSSField.prototype.handleTapEvent = function(e) {
             // Format and flag the image as selected.
             ZSSEditor.currentEditingImage = targetNode;
             // 注释掉选中图片时的编辑图标
-//            ZSSEditor.applyImageSelectionFormatting( targetNode );
+            //            ZSSEditor.applyImageSelectionFormatting( targetNode );
             
             return;
         }
@@ -2790,7 +2788,7 @@ ZSSEditor.getCoverImage = function(){
     var  coverImage = $('img:first');
     
     if(coverImage.length==1)
-        coverImageUrl = coverImage.attr("data-src");
+        coverImageUrl = coverImage.attr("src");
     
     return coverImageUrl;
 };
@@ -2800,8 +2798,10 @@ ZSSEditor.getAllImage = function(){
     var imageUrl = "";
     
     $("img").each(function(){
-        imageUrl = imageUrl + $(this).attr("data-src")+";";
-    });
+                  
+                  imageUrl = imageUrl + $(this).attr("src")+";";
+                  
+                  });
     
     return imageUrl;
 };
@@ -2836,14 +2836,14 @@ ZSSEditor.atUser = function(text,url){
 
 ZSSEditor.showTitle = function(showTitleFeild){
     
-   var titleField =  $("#zss_field_title");
-   var separatorDiv =  $("#separatorDiv");
-   
-    if(showTitleFeild == true){
+    var titleField =  $("#zss_field_title");
+    var separatorDiv =  $("#separatorDiv");
     
+    if(showTitleFeild == true){
+        
         titleField.show();
         separatorDiv.show();
-
+        
     }
     else{
         titleField.hide();
