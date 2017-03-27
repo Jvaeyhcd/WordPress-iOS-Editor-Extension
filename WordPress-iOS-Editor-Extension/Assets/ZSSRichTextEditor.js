@@ -748,7 +748,6 @@ ZSSEditor.updateImage = function(url, alt) {
     
     if (ZSSEditor.currentEditingImage) {
         var c = ZSSEditor.currentEditingImage;
-        c.attr('src', '');
         c.attr('data-src', url);
         c.attr('alt', alt);
     }
@@ -757,7 +756,7 @@ ZSSEditor.updateImage = function(url, alt) {
 };
 
 ZSSEditor.insertImage = function(url, alt) {
-    var html = '<img src="" data-src="'+url+'" alt="'+alt+'" />';
+    var html = '<img data-src="'+url+'" alt="'+alt+'" />';
     
     this.insertHTML(html);
     this.sendEnabledStyles();
@@ -850,7 +849,8 @@ ZSSEditor.replaceLocalImageWithRemoteImage = function(imageNodeIdentifier, remot
     var image = new Image;
     
     image.onload = function () {
-        imageNode.attr('src', image.src);
+//        imageNode.attr('src', '');
+        imageNode.attr('data-src', image.src);
         ZSSEditor.markImageUploadDone(imageNodeIdentifier);
     }
     
@@ -858,7 +858,8 @@ ZSSEditor.replaceLocalImageWithRemoteImage = function(imageNodeIdentifier, remot
         // Even on an error, we swap the image for the time being.  This is because private
         // blogs are currently failing to download images due to access privilege issues.
         //
-        imageNode.attr('src', image.src);
+//        imageNode.attr('src', '');
+        imageNode.attr('data-src', image.src);
         ZSSEditor.markImageUploadDone(imageNodeIdentifier);
     }
     
@@ -2789,7 +2790,7 @@ ZSSEditor.getCoverImage = function(){
     var  coverImage = $('img:first');
     
     if(coverImage.length==1)
-        coverImageUrl = coverImage.attr("src");
+        coverImageUrl = coverImage.attr("data-src");
     
     return coverImageUrl;
 };
@@ -2799,10 +2800,8 @@ ZSSEditor.getAllImage = function(){
     var imageUrl = "";
     
     $("img").each(function(){
-                  
-                  imageUrl = imageUrl + $(this).attr("src")+";";
-                  
-                  });
+        imageUrl = imageUrl + $(this).attr("data-src")+";";
+    });
     
     return imageUrl;
 };
