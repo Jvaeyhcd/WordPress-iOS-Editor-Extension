@@ -748,7 +748,8 @@ ZSSEditor.updateImage = function(url, alt) {
     
     if (ZSSEditor.currentEditingImage) {
         var c = ZSSEditor.currentEditingImage;
-        c.attr('src', url);
+        c.attr('src', '');
+        c.attr('data-src', url);
         c.attr('alt', alt);
     }
     ZSSEditor.sendEnabledStyles();
@@ -756,7 +757,7 @@ ZSSEditor.updateImage = function(url, alt) {
 };
 
 ZSSEditor.insertImage = function(url, alt) {
-    var html = '<img src="'+url+'" data-src="'+url+'" alt="'+alt+'" />';
+    var html = '<img src="" data-src="'+url+'" alt="'+alt+'" />';
     
     this.insertHTML(html);
     this.sendEnabledStyles();

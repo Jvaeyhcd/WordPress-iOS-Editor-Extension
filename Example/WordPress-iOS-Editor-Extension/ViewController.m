@@ -60,7 +60,7 @@
     self.hcdToolbarView.backgroundColor = [UIColor colorWithRed:247 / 255.0 green:247 / 255.0 blue:247 / 255.0 alpha:1.0];
     self.hcdToolbarView.itemTintColor = [UIColor colorWithRed:135 / 255.0 green:135 / 255.0 blue:135 / 255.0 alpha:1.0];
     self.hcdToolbarView.selectedBBsCategory = @"请选择分类请选择分类请选择分类请选择分类";
-    [self.hcdToolbarView setToolBarEnable:NO];
+    [self.hcdToolbarView setToolBarEnable:YES];
     self.toolbarView.hidden = YES;
     
     self.editorView.sourceView.inputAccessoryView = self.hcdToolbarView;
