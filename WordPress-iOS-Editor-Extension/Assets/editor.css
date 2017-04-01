@@ -77,8 +77,14 @@ body {
 
 p {
     line-height: 22px;
-    margin-top: 0px;
-    margin-bottom: 0px;
+/*    margin-top: 0px;*/
+/*    margin-bottom: 0px;*/
+    display: block;
+
+    -webkit-margin-before: 0.8em;
+    -webkit-margin-after: 1.2em;
+    -webkit-margin-start: 0px;
+    -webkit-margin-end: 0px;
 }
 
 hr {

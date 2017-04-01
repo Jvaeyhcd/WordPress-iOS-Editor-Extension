@@ -8,61 +8,108 @@
 		<dict>
 			<key>isShown</key>
 			<false/>
+			<key>orderHint</key>
+			<integer>1</integer>
 		</dict>
 		<key>CocoaLumberjack.xcscheme</key>
 		<dict>
 			<key>isShown</key>
 			<false/>
+			<key>orderHint</key>
+			<integer>2</integer>
+		</dict>
+		<key>HappyDNS.xcscheme</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>12</integer>
 		</dict>
 		<key>NSObject-SafeExpectations.xcscheme</key>
 		<dict>
 			<key>isShown</key>
 			<false/>
+			<key>orderHint</key>
+			<integer>3</integer>
 		</dict>
 		<key>Pods-WordPress-iOS-Editor-Extension.xcscheme</key>
 		<dict>
 			<key>isShown</key>
 			<false/>
+			<key>orderHint</key>
+			<integer>4</integer>
+		</dict>
+		<key>Qiniu.xcscheme</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>13</integer>
 		</dict>
 		<key>UIAlertView+Blocks.xcscheme</key>
 		<dict>
 			<key>isShown</key>
 			<false/>
+			<key>orderHint</key>
+			<integer>5</integer>
 		</dict>
 		<key>WYPopoverController.xcscheme</key>
 		<dict>
 			<key>isShown</key>
 			<false/>
+			<key>orderHint</key>
+			<integer>11</integer>
 		</dict>
 		<key>WordPress-iOS-Editor-Extension-WordPress-iOS-Editor-Extension.xcscheme</key>
 		<dict>
 			<key>isShown</key>
 			<false/>
+			<key>orderHint</key>
+			<integer>7</integer>
 		</dict>
 		<key>WordPress-iOS-Editor-Extension.xcscheme</key>
 		<dict>
 			<key>isShown</key>
 			<false/>
+			<key>orderHint</key>
+			<integer>6</integer>
 		</dict>
 		<key>WordPress-iOS-Shared-WordPress-iOS-Shared.xcscheme</key>
 		<dict>
 			<key>isShown</key>
 			<false/>
+			<key>orderHint</key>
+			<integer>9</integer>
 		</dict>
 		<key>WordPress-iOS-Shared.xcscheme</key>
 		<dict>
 			<key>isShown</key>
 			<false/>
+			<key>orderHint</key>
+			<integer>8</integer>
 		</dict>
 		<key>WordPressCom-Analytics-iOS.xcscheme</key>
 		<dict>
 			<key>isShown</key>
 			<false/>
+			<key>orderHint</key>
+			<integer>10</integer>
 		</dict>
 	</dict>
 	<key>SuppressBuildableAutocreation</key>
 	<dict>
+		<key>0586BC250DFCD75B630309A2DADC258E</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>15222E0B301803489015EA35C0373570</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
 		<key>1C3436CEA5C3D39764C5F54374794ECB</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>38B6F0254AAF0FFE0C0D19397E5D89F7</key>
 		<dict>
 			<key>primary</key>
 			<true/>
@@ -78,6 +125,11 @@
 			<true/>
 		</dict>
 		<key>406CEAA128D2D39DD3F2DBEE6943690B</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>6C4DA3CF0618D773AA59543CCECA7842</key>
 		<dict>
 			<key>primary</key>
 			<true/>
@@ -102,6 +154,11 @@
 			<key>primary</key>
 			<true/>
 		</dict>
+		<key>8968751D243B93EC12871CD7EADBB7D3</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
 		<key>8A2E8FED01C8A6BC8ADFCF3C3B78368F</key>
 		<dict>
 			<key>primary</key>
@@ -112,7 +169,47 @@
 			<key>primary</key>
 			<true/>
 		</dict>
+		<key>B4292342F55A437D1B7DA7A12259A454</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>B86483016E3C645B1DFEEF9ADA30856B</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
 		<key>BD3FA306FDE36F19D06A62341E272B10</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>C1A54FC0100DFA5394FE6BCAC6C721A6</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>C3FFB3FD0C7A27292337DA67649982BB</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>CF671F7E57B92905F1CC91D036D6B4A7</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>DDF443018A553C2445A08DB70255D131</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>E12FADC0304C6575607D3ED8EB7B3D84</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>E684F5A88DBA0EC2249F55D89BC886D4</key>
 		<dict>
 			<key>primary</key>
 			<true/>

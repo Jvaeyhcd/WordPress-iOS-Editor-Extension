@@ -2712,6 +2712,7 @@ ZSSField.prototype.isEmpty = function() {
 ZSSField.prototype.getHTML = function() {
     var html = wp.saveText(this.wrappedObject.html());
     html = ZSSEditor.removeVisualFormatting( html );
+    html = wp.loadText(html);
     return html
 };
 
